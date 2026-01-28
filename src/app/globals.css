@@ -118,7 +118,30 @@
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
+}
+
+/* Definimos la utilidad fuera de @apply para evitar conflictos en V4 */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari, Opera */
+}
+
+body {
+  @apply bg-background text-foreground;
+  overflow-x: hidden;
+  /* Aplicamos las propiedades de ocultar scroll directamente aquí */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  scrollbar-gutter: stable;
 }

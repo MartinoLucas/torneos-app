@@ -5,10 +5,12 @@ import { motion } from "framer-motion";
 export function PageWrapper({ children }: { children: React.ReactNode }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 15 }}
+      initial={{ opacity: 0, y: 10 }} // Reducimos el desplazamiento para que sea más sutil
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 15 }}
-      className="w-full h-full"
+      exit={{ opacity: 0, y: 10 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      // La clave: overflow-hidden durante la animación o evitar que el height crezca
+      className="w-full min-h-screen flex flex-col overflow-x-hidden" 
     >
       {children}
     </motion.div>

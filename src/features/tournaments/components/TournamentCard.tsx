@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Tournament } from "../services/tournament-service";
+import Link from "next/link";
 
 export function TournamentCard({ tournament }: { tournament: Tournament }) {
   return (
@@ -37,10 +38,10 @@ export function TournamentCard({ tournament }: { tournament: Tournament }) {
         </CardContent>
         <CardFooter className="border-t border-zinc-50 pt-4">
           <Button variant="ghost" className="w-full group" asChild>
-            <a href={`/tournaments/${tournament.id}`}>
-              Ver detalle 
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </a>
+            <Link href={`/tournaments/${tournament.id}`}>
+                Ver detalle 
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
           </Button>
         </CardFooter>
       </Card>

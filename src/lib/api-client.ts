@@ -15,7 +15,7 @@ apiClient.interceptors.request.use(
       const token = localStorage.getItem(isAdminRoute ? 'auth_token_admin' : 'auth_token_participant');
 
       if (token && config.headers) {
-        config.headers['authentication'] = token;
+        config.headers['Authorization'] = token;
       }
     }
     return config;

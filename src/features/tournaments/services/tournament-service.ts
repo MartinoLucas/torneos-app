@@ -25,6 +25,6 @@ export const tournamentService = {
 
   // GET /tournament/:id
   getById: async (id: string): Promise<Tournament> => {
-    return apiClient.get(`/tournament/${id}`);
+    return apiClient.get(`/tournaments/${id}`);
   }
 };

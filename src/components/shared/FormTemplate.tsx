@@ -37,7 +37,11 @@ export function FormTemplate<T extends z.ZodObject<any>>({
 
   const handleFormSubmit = (values: z.infer<T>) => {
     startTransition(async () => {
-      await onSubmit(values);
+      try {
+        await onSubmit(values);
+      } catch (e) {
+        console.error(e);
+      }
     });
   };
 

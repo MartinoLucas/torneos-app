@@ -4,6 +4,7 @@ import "./globals.css";
 import { FramerProvider } from "@/components/providers/framer-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/features/auth/context/auth-context";
+import { Navbar } from "@/components/layout/Navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,7 +26,10 @@ export default function RootLayout({
       <body className={`${geistSans.variable} antialiased`}>
         <AuthProvider>
           <FramerProvider>
-            {children}
+            <Navbar />
+            <main className="pt-16 min-h-screen">
+              {children}
+            </main>
             {/* Toaster de Sonner para notificaciones globales */}
             <Toaster position="top-right" richColors closeButton />
           </FramerProvider>

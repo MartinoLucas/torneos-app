@@ -17,6 +17,14 @@ export interface PaginatedResponse<T> {
   number: number;
 }
 
+export interface Competition {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  cupo: number;
+}
+
 export const tournamentService = {
   // GET /tournaments (Público/Participante)
   getUpcoming: async (): Promise<PaginatedResponse<Tournament>> => {
@@ -26,5 +34,9 @@ export const tournamentService = {
   // GET /tournament/:id
   getById: async (id: string): Promise<Tournament> => {
     return apiClient.get(`/tournaments/${id}`);
-  }
+  },
+
+  getCompetitions: async (tournamentId: string | number): Promise<PaginatedResponse<Competition>> => {
+    return apiClient.get(`/tournaments/${tournamentId}/competitions`);
+  },
 };

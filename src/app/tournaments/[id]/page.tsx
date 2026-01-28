@@ -13,6 +13,7 @@ import { es } from "date-fns/locale";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { isBefore, isAfter, parseISO } from "date-fns";
+import { CompetitionList } from "@/features/tournaments/components/CompetitionList";
 
 export default function TournamentDetailPage() {
   const { id } = useParams();
@@ -119,24 +120,12 @@ export default function TournamentDetailPage() {
                   <Trophy className="h-6 w-6 text-primary" /> Competencias Disponibles
                 </h2>
               </div>
-              
-              {/* Card de Competencias (Placeholder funcional) */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl border border-zinc-200 p-8 text-center shadow-sm"
-              >
-                <div className="bg-zinc-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="h-8 w-8 text-zinc-300" />
-                </div>
-                <h3 className="text-xl font-semibold text-zinc-900">Listado de Categorías</h3>
-                <p className="text-zinc-500 mt-2 max-w-sm mx-auto">
-                  Estamos terminando de configurar los cupos y precios para las categorías de este torneo.
-                </p>
-                <Button variant="outline" className="mt-6" disabled>
-                  Próximamente
-                </Button>
-              </motion.div>
+
+              {/* Pasamos el ID y el estado de validación de fechas que ya calculamos */}
+                <CompetitionList 
+                    tournamentId={id as string} 
+                    canRegister={canRegister} 
+                />
             </section>
           </div>
 

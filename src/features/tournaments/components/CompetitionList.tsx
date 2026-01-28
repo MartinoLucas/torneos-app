@@ -6,6 +6,9 @@ import { DataTable, ColumnDef } from "@/components/shared/DataTable";
 import { Button } from "@/components/ui/button";
 import { Loader2, Users } from "lucide-react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/features/auth/context/auth-context";
+import { InscriptionModal } from "./InscriptionModal";
 
 interface CompetitionListProps {
   tournamentId: string | number;
@@ -13,8 +16,13 @@ interface CompetitionListProps {
 }
 
 export function CompetitionList({ tournamentId, canRegister }: CompetitionListProps) {
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const [competitions, setCompetitions] = React.useState<Competition[]>([]);
   const [loading, setLoading] = React.useState(true);
+  
+  // Estado para el modal
+  const [selectedComp, setSelectedComp] = React.useState<Competition | null>(null);
 
   React.useEffect(() => {
     tournamentService.getCompetitions(tournamentId)
@@ -22,6 +30,14 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
       .catch(() => setCompetitions([]))
       .finally(() => setLoading(false));
   }, [tournamentId]);
+
+  const handleInscriptionClick = (comp: Competition) => {
+    if (!isAuthenticated) {
+      router.push("/login");
+      return;
+    }
+    setSelectedComp(comp);
+  };
 
   // Definición de columnas para nuestra DataTable genérica
   const columns: ColumnDef<Competition>[] = [
@@ -61,6 +77,7 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
           variant={canRegister ? "default" : "secondary"}
           disabled={!canRegister}
           className="rounded-full px-6"
+          onClick={() => handleInscriptionClick(row)}
         >
           {canRegister ? "Inscribirse" : "Cerrado"}
         </Button>
@@ -104,6 +121,13 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
         columns={columns}
         searchPlaceholder="Filtrar categorías..."
         searchAccessor={(row) => row.nombre}
+      />
+
+      <InscriptionModal
+        isOpen={!!selectedComp}
+        competition={selectedComp}
+        tournamentId={tournamentId}
+        onClose={() => setSelectedComp(null)}
       />
     </div>
   );

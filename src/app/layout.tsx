@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { FramerProvider } from "@/components/providers/framer-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/features/auth/context/auth-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,11 +23,13 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={`${geistSans.variable} antialiased`}>
-        <FramerProvider>
-          {children}
-          {/* Toaster de Sonner para notificaciones globales */}
-          <Toaster position="top-right" richColors closeButton />
-        </FramerProvider>
+        <AuthProvider>
+          <FramerProvider>
+            {children}
+            {/* Toaster de Sonner para notificaciones globales */}
+            <Toaster position="top-right" richColors closeButton />
+          </FramerProvider>
+        </AuthProvider>
       </body>
     </html>
   );

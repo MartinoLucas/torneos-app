@@ -7,10 +7,12 @@ import { Search, Trophy, User, LogOut, Menu } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/context/auth-context";
+import { useRouter } from "next/navigation";
 
 export function Navbar() {
   const { isAuthenticated, logout } = useAuth();
   const [isSearchFocused, setIsSearchFocused] = React.useState(false);
+  const router = useRouter();
 
   return (
     <nav className="fixed top-0 z-50 w-full border-b border-border bg-background/60 backdrop-blur-xl">
@@ -47,7 +49,7 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           {isAuthenticated ? (
             <>
-              <Button variant="ghost" size="icon" className="rounded-full">
+              <Button variant="ghost" size="icon" onClick={() => router.push("/dashboard")} className="rounded-full cur">
                 <User size={20} />
               </Button>
               <Button variant="outline" size="sm" onClick={logout} className="hidden sm:flex items-center gap-2">

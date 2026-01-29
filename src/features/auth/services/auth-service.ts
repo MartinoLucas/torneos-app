@@ -7,6 +7,17 @@ interface AuthResponse {
   email: string;
 }
 
+export interface CreateParticipanteDTO {
+  nombre: string;
+  apellido: string;
+  password: string;
+  email: string; // Se enviará como string gracias a @JsonValue en el back
+  documento: {
+    tipo: "DNI" | "PASAPORTE" | "LE" | "LC"; // Ajusta según tu Enum TipoDocumento
+    numero: string;
+  };
+}
+
 export const authService = {
   adminLogin: async (data: LoginInput): Promise<AuthResponse> => {
     // apiClient ahora devuelve directamente el T (AuthResponse en este caso)
@@ -17,7 +28,7 @@ export const authService = {
     return apiClient.post('/auth', data);
   },
 
-  register: async (data: RegisterInput): Promise<any> => {
-    return apiClient.post('/account', data);
+  register: async (data: CreateParticipanteDTO): Promise<any> => {
+    return apiClient.post('/accounts', data);
   }
 };

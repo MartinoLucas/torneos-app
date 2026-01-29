@@ -2,11 +2,19 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { jwtDecode } from "jwt-decode"; // Asegúrate de tenerlo instalado: npm install jwt-decode
+
+interface User {
+  id: string;
+  nombre: string;
+  email: string;
+}
 
 interface AuthState {
   token: string | null;
   role: "admin" | "participant" | null;
   isAuthenticated: boolean;
+  user: User | null; // <--- Agregamos esto
 }
 
 interface AuthContextType extends AuthState {
@@ -17,26 +25,50 @@ interface AuthContextType extends AuthState {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [auth, setAuth] = useState<AuthState>({ token: null, role: null, isAuthenticated: false });
+  const [auth, setAuth] = useState<AuthState>({ 
+    token: null, 
+    role: null, 
+    isAuthenticated: false, 
+    user: null 
+  });
   const router = useRouter();
 
   useEffect(() => {
     const adminToken = localStorage.getItem("auth_token_admin");
     const participantToken = localStorage.getItem("auth_token_participant");
+    const token = adminToken || participantToken;
 
-    if (adminToken) setAuth({ token: adminToken, role: "admin", isAuthenticated: true });
-    else if (participantToken) setAuth({ token: participantToken, role: "participant", isAuthenticated: true });
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token);
+        setAuth({
+          token,
+          role: adminToken ? "admin" : "participant",
+          isAuthenticated: true,
+          user: { id: decoded.sub_id || decoded.id, nombre: decoded.nombre || "Usuario", email: decoded.sub }
+        });
+      } catch (e) {
+        localStorage.clear();
+      }
+    }
   }, []);
 
   const login = (token: string, role: "admin" | "participant") => {
     localStorage.setItem(role === "admin" ? "auth_token_admin" : "auth_token_participant", token);
-    setAuth({ token, role, isAuthenticated: true });
+    const decoded: any = jwtDecode(token);
+    
+    setAuth({ 
+      token, 
+      role, 
+      isAuthenticated: true,
+      user: { id: decoded.sub_id || decoded.id, nombre: decoded.nombre, email: decoded.sub }
+    });
     router.push(role === "admin" ? "/admin/dashboard" : "/dashboard");
   };
 
   const logout = () => {
     localStorage.clear();
-    setAuth({ token: null, role: null, isAuthenticated: false });
+    setAuth({ token: null, role: null, isAuthenticated: false, user: null });
     router.push("/login");
   };
 

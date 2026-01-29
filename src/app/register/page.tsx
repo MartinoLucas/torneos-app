@@ -1,104 +1,105 @@
 "use client";
 
-import { PageWrapper } from "@/components/shared/PageWrapper";
-import { FormTemplate } from "@/components/shared/FormTemplate";
-import { TextField, PasswordField, SelectField } from "@/components/shared";
-import { registerSchema, RegisterInput } from "@/lib/validations/auth";
-import { authService } from "@/features/auth/services/auth-service";
+import * as React from "react";
+import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { authService, CreateParticipanteDTO } from "@/features/auth/services/auth-service";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { SelectField } from "@/components/shared"; 
 import { toast } from "sonner";
-import Link from "next/link";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { register, handleSubmit, control, formState: { isSubmitting } } = useForm<CreateParticipanteDTO>({
+    defaultValues: {
+      documento: {
+        tipo: "DNI" as any, // Valor inicial para evitar el error de "undefined"
+      }
+    }
+  });
 
-  const onSubmit = async (values: RegisterInput) => {
+  const tipoDocOptions = [
+    { label: "DNI", value: "DNI" },
+    { label: "Libreta de Enrolamiento", value: "LE" },
+    { label: "Libreta Cívica", value: "LC" },
+    { label: "Pasaporte", value: "PASAPORTE" },
+  ];
+
+  const onSubmit = async (data: CreateParticipanteDTO) => {
     try {
-      await authService.register(values);
-      toast.success("Cuenta creada con éxito. Ahora podés iniciar sesión.");
+      const payload = {
+        ...data,
+        email: data.email.trim(), 
+        documento: {
+          tipo: data.documento.tipo,
+          numero: String(data.documento.numero).trim()
+        }
+      };
+
+      console.log("Enviando registro:", payload); // Mirá esto en la consola del navegador
+
+      await authService.register(payload);
+      toast.success("Cuenta creada exitosamente");
       router.push("/login");
-    } catch (error: any) {
-      // Usamos el 'title' o 'detail' que viene de tu ApiError de Java
-      toast.error(error?.title || "Error al registrarse");
+    } catch (error) {
+      // El error ya lo maneja el interceptor
     }
   };
 
   return (
-    <PageWrapper>
-      <div className="flex min-h-screen items-center justify-center p-6 bg-zinc-50">
-        <div className="w-full max-w-2xl">
-          <FormTemplate
-            title="Crear Cuenta"
-            description="Completá tus datos para participar en los torneos."
-            schema={registerSchema}
-            defaultValues={{
-              email: "",
-              password: "",
-              firstName: "",
-              lastName: "",
-              documentType: "DNI",
-              documentNumber: "",
-            }}
-            onSubmit={onSubmit}
-            submitText="Registrarse"
-          >
-            {({ form }) => (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TextField
-                  control={form.control}
-                  name="firstName"
-                  label="Nombre"
-                  placeholder="Juan"
-                />
-                <TextField
-                  control={form.control}
-                  name="lastName"
-                  label="Apellido"
-                  placeholder="Pérez"
-                />
-                <SelectField
-                    control={form.control}
-                    name="documentType"
-                    label="Tipo de Doc."
-                    options={[
-                        { label: "DNI", value: "DNI" },
-                        { label: "Libreta de Enrolamiento", value: "LE" },
-                        { label: "Libreta Cívica", value: "LC" },
-                        { label: "Pasaporte", value: "PASAPORTE" },
-                    ]}
-                />
-                <TextField
-                  control={form.control}
-                  name="documentNumber"
-                  label="Número de Doc."
-                  placeholder="12345678"
-                />
-                <div className="md:col-span-2">
-                  <TextField
-                    control={form.control}
-                    name="email"
-                    label="Correo Electrónico"
-                    placeholder="juan@correo.com"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <PasswordField
-                    control={form.control}
-                    name="password"
-                    label="Contraseña"
-                  />
-                </div>
-                <p className="md:col-span-2 text-center text-sm text-muted-foreground mt-2">
-                  ¿Ya tenés cuenta?{" "}
-                  <Link href="/login" className="text-primary font-medium hover:underline">
-                    Iniciá sesión acá
-                  </Link>
-                </p>
+    <div className="flex items-center justify-center min-h-[80vh] px-4">
+      <Card className="w-full max-w-md shadow-xl border-zinc-200">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-black">Crear cuenta</CardTitle>
+          <CardDescription>Ingresa tus datos para registrarte como participante</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="nombre">Nombre</Label>
+                <Input id="nombre" {...register("nombre", { required: "El nombre es obligatorio" })} placeholder="Juan" />
               </div>
-            )}
-          </FormTemplate>
-        </div>
-      </div>
-    </PageWrapper>
+              <div className="space-y-2">
+                <Label htmlFor="apellido">Apellido</Label>
+                <Input id="apellido" {...register("apellido", { required: "El apellido es obligatorio" })} placeholder="Pérez" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" {...register("email", { required: "El email es obligatorio" })} placeholder="juan@ejemplo.com" />
+            </div>
+
+            <div className="grid grid-cols-3 gap-4 items-end">
+              <div className="col-span-1">
+                <SelectField
+                  control={control}
+                  name="documento.tipo"
+                  label="Tipo Doc."
+                  options={tipoDocOptions}
+                />
+              </div>
+              <div className="col-span-2 space-y-2">
+                <Label htmlFor="doc_num">Número de Documento</Label>
+                <Input id="doc_num" {...register("documento.numero", { required: "El número es obligatorio" })} placeholder="12345678" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Contraseña</Label>
+              <Input id="password" type="password" {...register("password", { required: "La contraseña es obligatoria" })} />
+            </div>
+
+            <Button type="submit" className="w-full h-11" disabled={isSubmitting}>
+              {isSubmitting ? "Creando cuenta..." : "Registrarse"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

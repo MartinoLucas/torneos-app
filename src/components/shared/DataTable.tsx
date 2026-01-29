@@ -17,7 +17,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { CreditCard, Search } from "lucide-react";
+import { Skeleton } from "../ui/skeleton";
 
 export type ColumnDef<T> = {
   id: string;
@@ -35,6 +36,7 @@ interface DataTableProps<T> {
   searchPlaceholder?: string;
   searchAccessor?: (row: T) => string;
   headerActions?: React.ReactNode;
+  loading?: boolean;
 }
 
 export function DataTable<T>({
@@ -45,6 +47,7 @@ export function DataTable<T>({
   searchPlaceholder = "Buscar...",
   searchAccessor,
   headerActions,
+  loading = false,
 }: DataTableProps<T>) {
   const [searchTerm, setSearchTerm] = React.useState("");
 
@@ -107,10 +110,22 @@ export function DataTable<T>({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredData.length > 0 ? (
-                filteredData.map((row, idx) => (
-                  <TableRow key={idx} className="hover:bg-zinc-50/30 transition-colors">
-                    {columns.map((col) => (
+            {loading ? (
+              // Skeletons mientras carga
+              Array.from({ length: 5 }).map((_, rowIndex) => (
+                <TableRow key={`skeleton-${rowIndex}`}>
+                  {columns.map((col) => (
+                    <TableCell key={`skeleton-cell-${col.id}`} className={col.hideOnMobile ? "hidden md:table-cell" : ""}>
+                      <Skeleton className="h-6 w-full rounded-md opacity-50" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : filteredData.length > 0 ? (
+              // Render de datos normal
+              filteredData.map((row, rowIndex) => (
+                <TableRow key={rowIndex} className="hover:bg-zinc-50/50 transition-colors">
+                  {columns.map((col) => (
                       <TableCell
                         key={col.id}
                         className={`
@@ -118,19 +133,24 @@ export function DataTable<T>({
                           ${col.hideOnMobile ? "hidden md:table-cell" : ""}
                         `}
                       >
-                        {col.cell(row, idx)}
+                        {col.cell(row, rowIndex)}
                       </TableCell>
                     ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
-                    No se encontraron resultados.
-                  </TableCell>
                 </TableRow>
-              )}
-            </TableBody>
+              ))
+            ) : (
+              // Estado Vacío mejorado
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-48 text-center">
+                  <div className="flex flex-col items-center justify-center gap-2 text-zinc-500">
+                    <CreditCard className="h-10 w-10 text-zinc-200" />
+                    <p className="font-medium text-lg">No se encontraron inscripciones</p>
+                    <p className="text-sm">Parece que aún no te has anotado en ninguna competencia.</p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
           </Table>
         </div>
       </CardContent>

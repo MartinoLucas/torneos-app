@@ -68,14 +68,8 @@ export default function AdminTournamentsPage() {
       <div className="container mx-auto py-10">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-black">Gestión de Torneos</h1>
-            <p className="text-muted-foreground">Crea y administra los torneos y sus categorías.</p>
+            <h2 className="text-3xl font-black">Panel de Administración</h2>
           </div>
-          <Button asChild>
-            <Link href="/admin/tournaments/new">
-              <Plus className="h-4 w-4 mr-2" /> Nuevo Torneo
-            </Link>
-          </Button>
         </div>
 
         <DataTable 
@@ -83,6 +77,15 @@ export default function AdminTournamentsPage() {
           columns={columns} 
           loading={loading}
           searchAccessor={(row) => row.nombre}
+          title="Gestion de Torneos"
+          description="Crea y administra los torneos y sus categorias"
+          headerActions={
+            <Button asChild>
+              <Link href="/admin/tournaments/new">
+                <Plus className="h-4 w-4 mr-2" /> Nuevo Torneo
+              </Link>
+            </Button>
+          }
         />
       </div>
     </PageWrapper>

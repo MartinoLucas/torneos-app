@@ -44,11 +44,25 @@ export const tournamentService = {
     return apiClient.post('/admin/tournaments', data);
   },
 
+  updateTournament: async (id: number, data: any) => {
+    return apiClient.put(`/admin/tournaments/${id}`, data);
+  },
+  publish: async (id: string | number) => {
+    return apiClient.put(`/admin/tournaments/${id}/publish`, {});
+  },
+
+  finalize: async (id: string | number) => {
+    return apiClient.put(`/admin/tournaments/${id}/finalize`, {});
+  },
+
+  deleteDraft: async (id: string | number) => {
+    return apiClient.delete(`/admin/tournaments/${id}`);
+  },
+
   createCompetencia: async (tournamentId: number, data: any) => {
     return apiClient.post(`/admin/tournaments/${tournamentId}/competencias`, data);
   },
   
- 
   getAllAdmin: async (): Promise<PaginatedResponse<Tournament>> => {
     return apiClient.get('/admin/tournaments');
   },

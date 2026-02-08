@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Save, RotateCcw } from "lucide-react";
 import { motion } from "framer-motion";
 
-interface FormTemplateProps<T extends z.ZodObject<any>> {
+interface FormTemplateProps<T extends z.ZodType<any, any, any>> {
   schema: T;
   defaultValues: DefaultValues<z.infer<T>>;
   onSubmit: (values: z.infer<T>) => Promise<void>;
@@ -19,7 +19,7 @@ interface FormTemplateProps<T extends z.ZodObject<any>> {
   children: (ctx: { form: UseFormReturn<z.infer<T>>; isPending: boolean }) => React.ReactNode;
 }
 
-export function FormTemplate<T extends z.ZodObject<any>>({
+export function FormTemplate<T extends z.ZodType<any, any, any>>({
   schema,
   defaultValues,
   onSubmit,

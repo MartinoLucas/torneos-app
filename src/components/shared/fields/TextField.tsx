@@ -12,6 +12,7 @@ interface TextFieldProps<T extends FieldValues> {
   placeholder?: string;
   type?: string;
   description?: string;
+  disabled?: boolean;
 }
 
 export function TextField<T extends FieldValues>({
@@ -21,6 +22,7 @@ export function TextField<T extends FieldValues>({
   placeholder,
   type = "text",
   description,
+  disabled = false,
 }: TextFieldProps<T>) {
   return (
     <Controller
@@ -36,7 +38,8 @@ export function TextField<T extends FieldValues>({
             id={name}
             type={type}
             placeholder={placeholder}
-            className={fieldState.error ? "border-destructive focus-visible:ring-destructive" : ""}
+            className={`${fieldState.error ? "border-destructive focus-visible:ring-destructive" : ""} ${disabled ? "bg-zinc-100 cursor-not-allowed" : ""}`}
+            disabled={disabled}
           />
           {description && <p className="text-xs text-muted-foreground">{description}</p>}
           {fieldState.error && (

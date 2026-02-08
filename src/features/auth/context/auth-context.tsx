@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isAuthenticated: true,
       user: { id: decoded.sub_id || decoded.id, sub: decoded.sub, roles: decoded.roles || [] }
     });
-    router.push(role === "admin" ? "/admin/dashboard" : "/dashboard");
+    router.push(role === "admin" ? "/admin/tournaments" : "/dashboard");
   };
 
   const logout = () => {

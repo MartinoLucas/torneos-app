@@ -13,12 +13,19 @@ export default function LoginPage() {
   const { login } = useAuth();
 
   const onSubmit = async (values: LoginInput) => {
+    // intentamos primero login con admin, si no anda hacemos participant
     try {
-      const response = await authService.participantLogin(values);
-      login(response.token, "participant");
+      const response = await authService.adminLogin(values);
+      login(response.token, "admin");
       toast.success("¡Bienvenido de nuevo!");
     } catch (error: any) {
-      toast.error(error?.title || "Error al iniciar sesión");
+      try {
+        const response = await authService.participantLogin(values);
+        login(response.token, "participant");
+        toast.success("¡Bienvenido de nuevo!");
+      } catch (error: any) {
+        toast.error(error?.title || "Error al iniciar sesión");
+      }
     }
   };
 

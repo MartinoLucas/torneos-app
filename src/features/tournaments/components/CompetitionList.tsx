@@ -63,7 +63,7 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
       align: "right",
       cell: (row) => (
         <span className="font-mono font-bold text-zinc-900">
-          ${row.precio.toLocaleString()}
+          ${row.precioBase.amount}
         </span>
       ),
     },

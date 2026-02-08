@@ -1,23 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Calendar, ArrowRight, Trophy, Clock } from "lucide-react";
+import { Calendar, ArrowRight, Trophy } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { format, isBefore, isAfter, parseISO } from "date-fns";
+import { format, isBefore, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
-import { Tournament } from "../services/tournament-service";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 
-export function TournamentCard({ tournament }: { tournament: Tournament }) {
-  // Lógica de validación de estado
+export function TournamentCard({ tournament }: { tournament: any }) {
   const now = new Date();
   const start = parseISO(tournament.fechaInicio);
-  const end = parseISO(tournament.fechaFin);
-  
-  const isUpcoming = isBefore(now, start);
-  const isFinished = isAfter(now, end);
-  const isOpen = !isUpcoming && !isFinished;
+  const canRegister = tournament.estado === "PUBLICADO" && isBefore(now, start);
 
   return (
     <motion.div
@@ -32,45 +27,34 @@ export function TournamentCard({ tournament }: { tournament: Tournament }) {
             </div>
             
             {/* Badge Dinámico */}
-            {isOpen ? (
+            {canRegister ? (
               <span className="text-[10px] font-bold px-2 py-1 bg-green-100 text-green-700 rounded-full uppercase tracking-wider">
                 Inscripción Abierta
               </span>
-            ) : isUpcoming ? (
-              <span className="text-[10px] font-bold px-2 py-1 bg-amber-100 text-amber-700 rounded-full uppercase tracking-wider">
-                Próximamente
-              </span>
-            ) : (
+            ) : tournament.estado === "FINALIZADO" ? (
               <span className="text-[10px] font-bold px-2 py-1 bg-zinc-100 text-zinc-500 rounded-full uppercase tracking-wider">
                 Finalizado
+              </span>
+            ) :(
+              <span className="text-[10px] font-bold px-2 py-1 bg-zinc-100 text-zinc-500 rounded-full uppercase tracking-wider">
+                Inscripción Cerrada
               </span>
             )}
           </div>
           <CardTitle className="mt-4 line-clamp-1">{tournament.nombre}</CardTitle>
         </CardHeader>
-
-        <CardContent className="pt-4">
-          <p className="text-sm text-muted-foreground line-clamp-2 mb-4 h-10">
-            {tournament.descripcion || "Sin descripción disponible."}
-          </p>
-          <div className="space-y-2">
-            <div className="flex items-center text-xs text-zinc-500 gap-2">
-              <Calendar size={14} className="text-primary" />
-              <span>Inicia: {format(start, "d 'de' MMM", { locale: es })}</span>
-            </div>
-            {!isOpen && isUpcoming && (
-              <div className="flex items-center text-[10px] text-amber-600 gap-1 font-medium">
-                <Clock size={12} />
-                <span>Abre pronto</span>
-              </div>
-            )}
+        <CardContent className="pt-4 h-32">
+          <CardTitle className="mb-2">{tournament.nombre}</CardTitle>
+          <p className="text-sm text-muted-foreground line-clamp-2">{tournament.descripcion}</p>
+          <div className="mt-4 flex items-center gap-2 text-xs text-zinc-500">
+            <Calendar size={14} className="text-primary" />
+            <span>Inicia: {format(start, "d 'de' MMM", { locale: es })}</span>
           </div>
         </CardContent>
-
-        <CardFooter className="border-t border-zinc-50 pt-4">
+        <CardFooter className="border-t pt-4">
           <Button variant="ghost" className="w-full group" asChild>
             <Link href={`/tournaments/${tournament.id}`}>
-              {isOpen ? "Inscribirme" : "Ver detalles"}
+              {canRegister ? "Inscribirme" : "Ver detalles"}
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>

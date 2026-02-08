@@ -17,7 +17,7 @@ export const inscriptionService = {
   /**
    * Obtiene las inscripciones del participante actual
    */
-  getMyInscriptions: async (participantId: string | number) => {
-    return apiClient.get(`/inscriptions-participant/${participantId}`);
+  getMyInscriptions: async (id: string | number) => {
+    return apiClient.get(`/inscriptions-participant/${id}`);
   }
 };

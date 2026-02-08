@@ -57,14 +57,14 @@ export function InscriptionModal({ competition, tournamentId, isOpen, onClose }:
         <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-200 space-y-3">
           <div className="flex justify-between text-sm">
             <span className="text-zinc-500">Precio base:</span>
-            <span className="font-medium">${competition.precio.toLocaleString()}</span>
+            <span className="font-medium">${competition.precioBase.amount}</span>
           </div>
           
           {/* Aquí el backend debería devolver si aplica descuento, 
               por ahora mostramos el precio final del DTO */}
           <div className="flex justify-between border-t border-zinc-200 pt-2 font-bold text-lg">
             <span>Total a pagar:</span>
-            <span className="text-primary">${competition.precio.toLocaleString()}</span>
+            <span className="text-primary">${competition.precioBase.amount}</span>
           </div>
         </div>
 

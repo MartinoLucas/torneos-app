@@ -39,8 +39,6 @@ export default function RegisterPage() {
         }
       };
 
-      console.log("Enviando registro:", payload); // Mirá esto en la consola del navegador
-
       await authService.register(payload);
       toast.success("Cuenta creada exitosamente");
       router.push("/login");

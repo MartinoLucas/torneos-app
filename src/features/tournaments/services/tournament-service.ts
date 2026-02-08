@@ -21,7 +21,10 @@ export interface Competition {
   id: number;
   nombre: string;
   descripcion: string;
-  precio: number;
+  precioBase: {
+    amount: number;
+    currency: string;
+  };
   cupo: number;
 }
 
@@ -59,8 +62,8 @@ export const tournamentService = {
     return apiClient.delete(`/admin/tournaments/${id}`);
   },
 
-  createCompetencia: async (tournamentId: number, data: any) => {
-    return apiClient.post(`/admin/tournaments/${tournamentId}/competencias`, data);
+  createCompetition: async (tournamentId: string | number, data: any) => {
+    return apiClient.post(`/admin/tournaments/${tournamentId}`, data);
   },
   
   getAllAdmin: async (): Promise<PaginatedResponse<Tournament>> => {

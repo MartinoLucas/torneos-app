@@ -108,7 +108,7 @@ export default function DashboardPage() {
               <Trophy className="h-8 w-8 text-primary" /> Mi Panel
             </h1>
             <p className="text-zinc-500 mt-2">
-              Hola, <span className="font-semibold text-zinc-800">{user?.nombre}</span>. Aquí tienes el resumen de tus actividades.
+              Hola, <span className="font-semibold text-zinc-800">{user?.sub}</span>. Aquí tienes el resumen de tus actividades.
             </p>
           </div>
           <Button asChild variant="outline">

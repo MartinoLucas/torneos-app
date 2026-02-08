@@ -111,41 +111,44 @@ export function DataTable<T>({
             </TableHeader>
             <TableBody>
             {loading ? (
-              // Skeletons mientras carga
+              // Mostrar Skeletons solo mientras loading sea true
               Array.from({ length: 5 }).map((_, rowIndex) => (
                 <TableRow key={`skeleton-${rowIndex}`}>
                   {columns.map((col) => (
-                    <TableCell key={`skeleton-cell-${col.id}`} className={col.hideOnMobile ? "hidden md:table-cell" : ""}>
+                    <TableCell 
+                      key={`skeleton-cell-${col.id}`}
+                      className={col.hideOnMobile ? "hidden md:table-cell" : ""}
+                    >
                       <Skeleton className="h-6 w-full rounded-md opacity-50" />
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : filteredData.length > 0 ? (
-              // Render de datos normal
+              // Mostrar datos si hay
               filteredData.map((row, rowIndex) => (
                 <TableRow key={rowIndex} className="hover:bg-zinc-50/50 transition-colors">
                   {columns.map((col) => (
-                      <TableCell
-                        key={col.id}
-                        className={`
-                          ${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left"}
-                          ${col.hideOnMobile ? "hidden md:table-cell" : ""}
-                        `}
-                      >
-                        {col.cell(row, rowIndex)}
-                      </TableCell>
-                    ))}
+                    <TableCell
+                      key={col.id}
+                      className={`
+                        ${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left"}
+                        ${col.hideOnMobile ? "hidden md:table-cell" : ""}
+                      `}
+                    >
+                      {col.cell(row, rowIndex)}
+                    </TableCell>
+                  ))}
                 </TableRow>
               ))
             ) : (
-              // Estado Vacío mejorado
+              // ESTADO VACÍO: Solo se muestra si loading es false y no hay data
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-48 text-center">
                   <div className="flex flex-col items-center justify-center gap-2 text-zinc-500">
                     <CreditCard className="h-10 w-10 text-zinc-200" />
-                    <p className="font-medium text-lg">No se encontraron inscripciones</p>
-                    <p className="text-sm">Parece que aún no te has anotado en ninguna competencia.</p>
+                    <p className="font-medium text-lg italic">No tienes inscripciones aún</p>
+                    <p className="text-sm not-italic">Explora los torneos disponibles para empezar.</p>
                   </div>
                 </TableCell>
               </TableRow>

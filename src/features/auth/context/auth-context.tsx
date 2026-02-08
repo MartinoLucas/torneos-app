@@ -6,8 +6,8 @@ import { jwtDecode } from "jwt-decode"; // Asegúrate de tenerlo instalado: npm 
 
 interface User {
   id: string;
-  nombre: string;
-  email: string;
+  sub: string;
+  roles: string[];
 }
 
 interface AuthState {
@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           token,
           role: adminToken ? "admin" : "participant",
           isAuthenticated: true,
-          user: { id: decoded.sub_id || decoded.id, nombre: decoded.nombre || "Usuario", email: decoded.sub }
+          user: { id: decoded.sub_id || decoded.id, sub: decoded.sub || "Usuario", roles: decoded.roles || [] }
         });
       } catch (e) {
         localStorage.clear();
@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       token, 
       role, 
       isAuthenticated: true,
-      user: { id: decoded.sub_id || decoded.id, nombre: decoded.nombre, email: decoded.sub }
+      user: { id: decoded.sub_id || decoded.id, sub: decoded.sub, roles: decoded.roles || [] }
     });
     router.push(role === "admin" ? "/admin/dashboard" : "/dashboard");
   };

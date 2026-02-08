@@ -12,10 +12,18 @@ apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     if (typeof window !== 'undefined') {
       const isAdminRoute = config.url?.includes('/admin');
+      console.log(isAdminRoute);
+      
       const token = localStorage.getItem(isAdminRoute ? 'auth_token_admin' : 'auth_token_participant');
 
+      console.log(config.headers);
+      
+      console.log(token);
+      
       if (token && config.headers) {
         config.headers['Authorization'] = token;
+        console.log(token);
+        
       }
     }
     return config;

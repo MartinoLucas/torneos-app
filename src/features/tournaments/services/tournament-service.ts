@@ -39,4 +39,18 @@ export const tournamentService = {
   getCompetitions: async (tournamentId: string | number): Promise<PaginatedResponse<Competition>> => {
     return apiClient.get(`/tournaments/${tournamentId}/competitions`);
   },
+
+  createTournament: async (data: any) => {
+    return apiClient.post('/admin/tournaments', data);
+  },
+
+  createCompetencia: async (tournamentId: number, data: any) => {
+    return apiClient.post(`/admin/tournaments/${tournamentId}/competencias`, data);
+  },
+  
+ 
+  getAllAdmin: async (): Promise<PaginatedResponse<Tournament>> => {
+    return apiClient.get('/admin/tournaments');
+  },
+
 };

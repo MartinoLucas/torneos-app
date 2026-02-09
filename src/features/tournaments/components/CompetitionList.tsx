@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { InscriptionModal } from "./InscriptionModal";
+import { inscriptionService } from "@/features/inscriptions/services/inscription-service";
 
 interface CompetitionListProps {
   tournamentId: string | number;
@@ -20,6 +21,8 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
   const pathname = usePathname();
   const { isAuthenticated, user } = useAuth();
   const [competitions, setCompetitions] = React.useState<Competition[]>([]);
+  const [alreadyRegistered, setAlreadyRegistered] = React.useState<number[]>([]);
+  const [tournamentInscriptionsCount, setTournamentInscriptionsCount] = React.useState(0);
   const [loading, setLoading] = React.useState(true);
   
   // Estado para el modal
@@ -31,6 +34,29 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
       .catch(() => setCompetitions([]))
       .finally(() => setLoading(false));
   }, [tournamentId]);
+
+  React.useEffect(() => {
+    if (isAuthenticated && user?.id) {
+      inscriptionService.getMyInscriptions(user.id)
+        .then((data: any) => {          
+          const inscriptions = data.content || [];
+          const registeredCompIds = inscriptions.map((cont: any) => cont.competencia.id);
+          setAlreadyRegistered(registeredCompIds);
+
+          // Contamos cuántas inscripciones existen ya para este TORNEO
+          console.log(inscriptions);
+          
+          const count = inscriptions.filter((ins: any) => 
+            String(ins.competencia.torneo.id) === String(tournamentId)
+          ).length;
+          setTournamentInscriptionsCount(count);
+        })
+        .catch(() => {
+          setAlreadyRegistered([]);
+          setTournamentInscriptionsCount(0);
+        });
+    }
+  }, [isAuthenticated, user, tournamentId]);
 
   const handleInscriptionClick = (comp: Competition) => {
     if (!isAuthenticated) {
@@ -56,7 +82,7 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
       id: "cupo",
       header: "Cupo",
       hideOnMobile: true,
-      cell: (row) => <span className="text-zinc-600">{row.cupo} lugares</span>,
+      cell: (row) => <span className="text-zinc-600">{row.cupo - row.inscriptosActuales} lugares restantes</span>,
     },
     {
       id: "precio",
@@ -76,11 +102,11 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
         <Button 
           size="sm" 
           variant={canRegister ? "default" : "secondary"}
-          disabled={!canRegister}
+          disabled={!canRegister || alreadyRegistered.includes(row.id)}
           className="rounded-full px-6"
           onClick={() => handleInscriptionClick(row)}
         >
-          {canRegister ? "Inscribirse" : "Cerrado"}
+          {alreadyRegistered.includes(row.id) ? "Inscripto" : canRegister ? "Inscribirse" : "Cerrado"}
         </Button>
       ),
     },
@@ -128,7 +154,11 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
         isOpen={!!selectedComp}
         competition={selectedComp}
         tournamentId={tournamentId}
-        onClose={() => setSelectedComp(null)}
+        previousInscriptionsCount={tournamentInscriptionsCount}
+        onClose={() => {
+          setSelectedComp(null);
+          router.refresh(); 
+        }}
       />
     </div>
   );

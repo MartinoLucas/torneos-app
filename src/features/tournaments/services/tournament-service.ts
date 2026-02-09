@@ -1,4 +1,5 @@
 import apiClient from "@/lib/api-client";
+import { get } from "http";
 
 export interface Tournament {
   id: number;
@@ -26,6 +27,7 @@ export interface Competition {
     currency: string;
   };
   cupo: number;
+  inscriptosActuales: number;
 }
 
 export const tournamentService = {

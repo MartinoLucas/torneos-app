@@ -1,3 +1,4 @@
+import { Competition, PaginatedResponse } from "@/features/tournaments/services/tournament-service";
 import apiClient from "@/lib/api-client";
 
 export interface InscriptionRequest {
@@ -23,7 +24,7 @@ export const inscriptionService = {
   /**
    * Obtiene las inscripciones del participante actual
    */
-  getMyInscriptions: async (id: string | number) => {
+  getMyInscriptions: async (id: string | number): Promise<PaginatedResponse<Competition>> => {
     return apiClient.get(`/inscriptions-participant/${id}`);
   }
 };

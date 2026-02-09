@@ -15,6 +15,22 @@ export default function Home() {
     tournamentService.getUpcoming()
       .then((data) => {
         if (data && Array.isArray(data.content)) {
+          // ordenamos los torneos por fecha de inicio, los más cercanos primero, los que tienen fecha de inicio antes de la fecha actual van al final
+          data.content.sort((a, b) => {
+            const now = new Date();
+            const dateA = new Date(a.fechaInicio);
+            const dateB = new Date(b.fechaInicio);
+            
+            if (dateA < now && dateB < now) {
+              return 0; // ambos son pasados, mantienen su orden relativo
+            } else if (dateA < now) {
+              return 1; // a es pasado, va después
+            } else if (dateB < now) {
+              return -1; // b es pasado, va después
+            } else {
+              return dateA.getTime() - dateB.getTime(); // ambos son futuros, orden normal
+            }
+          });
           setTournaments(data.content);
         } else {
           setTournaments([]);

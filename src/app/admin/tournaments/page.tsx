@@ -56,7 +56,7 @@ export default function AdminTournamentsPage() {
       cell: (row) => (
           <div className="flex items-center gap-2">
               <Layers className="h-3 w-3 text-primary" />
-              <span className="font-bold">{row.competencias?.length || 0}</span>
+              <span className="font-bold">{row.cantCompetencias || 0}</span>
           </div>
       )
     },

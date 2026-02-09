@@ -16,19 +16,28 @@ import { Loader2, CheckCircle2, Ticket, Wallet, Info } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { useAuth } from "@/features/auth/context/auth-context";
+import { useRouter } from "next/navigation";
+import { ro } from "date-fns/locale";
 
 interface InscriptionModalProps {
   competition: Competition | null;
   tournamentId: string | number;
   isOpen: boolean;
+  previousInscriptionsCount: number;
   onClose: () => void;
 }
 
-export function InscriptionModal({ competition, tournamentId, isOpen, onClose }: InscriptionModalProps) {
+export function InscriptionModal({ competition, tournamentId, isOpen, previousInscriptionsCount, onClose }: InscriptionModalProps) {
   const [isPending, setIsPending] = React.useState(false);
-  const {user} = useAuth();
+  const { user } = useAuth();
+  const router = useRouter();
 
   if (!competition) return null;
+
+  // Lógica de precio
+  const basePrice = competition.precioBase.amount;
+  const hasDiscount = previousInscriptionsCount > 0;
+  const finalPrice = hasDiscount ? basePrice * 0.5 : basePrice;
 
   const handleConfirm = async () => {
     setIsPending(true);
@@ -39,7 +48,7 @@ export function InscriptionModal({ competition, tournamentId, isOpen, onClose }:
         description: `Ya estás registrado en ${competition.nombre}`
       });
       onClose();
-      // Opcional: window.location.href = '/dashboard'; 
+      router.refresh();
     } catch (error: any) {
       // Manejado por api-client
     } finally {
@@ -79,20 +88,32 @@ export function InscriptionModal({ competition, tournamentId, isOpen, onClose }:
             </h3>
           </div>
 
-          {/* Card de Precios Estilo Ticket */}
+          {/* Card de Precios con Descuento Dinámico */}
           <div className="bg-zinc-950/5 rounded-[2rem] p-6 border border-zinc-200/50 space-y-4">
             <div className="flex justify-between items-center text-sm font-medium">
               <div className="flex items-center gap-2 text-zinc-500">
                 <Wallet size={14} />
                 <span>Costo de inscripción</span>
               </div>
-              <span className="font-mono text-zinc-900">${competition.precioBase.amount.toLocaleString()}</span>
+              <span className={`font-mono ${hasDiscount ? 'text-zinc-400 line-through text-xs' : 'text-zinc-900'}`}>
+                ${basePrice.toLocaleString()}
+              </span>
             </div>
+
+            {hasDiscount && (
+              <div className="flex justify-between items-center text-sm font-bold text-emerald-600">
+                <div className="flex items-center gap-2">
+                  <div className="bg-emerald-100 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-tighter">50% OFF</div>
+                  <span>Descuento por 2da inscripción</span>
+                </div>
+                <span className="font-mono">-${(basePrice * 0.5).toLocaleString()}</span>
+              </div>
+            )}
             
             <div className="flex justify-between items-center border-t border-zinc-200 pt-4">
               <span className="text-sm font-black uppercase italic text-zinc-900">Total a pagar</span>
               <span className="text-2xl font-black text-zinc-900 font-mono">
-                ${competition.precioBase.amount.toLocaleString()}
+                ${finalPrice.toLocaleString()}
               </span>
             </div>
           </div>

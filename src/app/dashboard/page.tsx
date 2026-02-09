@@ -56,41 +56,41 @@ export default function DashboardPage() {
       id: "pago",
       header: "Monto",
       cell: (row) => (
-        <div className="flex flex-col">
+        <div className="flex flex-row items-center gap-2">
           <span className="font-mono font-bold text-zinc-900">
-            ${row.montoTotal.toLocaleString()}
+            ${row.precioPagado.amount}
           </span>
-          {row.montoTotal < row.competencia.precio && (
-            <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded flex w-fit font-black uppercase mt-1">
+          {row.precioPagado.amount < row.competencia.precioBase.amount && (
+            <span className="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded flex w-fit font-black uppercase mt-1">
               50% Off
             </span>
           )}
         </div>
       ),
     },
-    {
-      id: "estado",
-      header: "Estado",
-      cell: (row) => (
-        <Badge 
-          variant="outline"
-          className={
-            row.estado === "CONFIRMADA" 
-              ? "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold" 
-              : "bg-amber-50 text-amber-700 border-amber-200 font-bold"
-          }
-        >
-          {row.estado}
-        </Badge>
-      ),
-    },
+    // {
+    //   id: "estado",
+    //   header: "Estado",
+    //   cell: (row) => (
+    //     <Badge 
+    //       variant="outline"
+    //       className={
+    //         row.estado === "CONFIRMADA" 
+    //           ? "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold" 
+    //           : "bg-amber-50 text-amber-700 border-amber-200 font-bold"
+    //       }
+    //     >
+    //       {row.estado}
+    //     </Badge>
+    //   ),
+    // },
     {
       id: "acciones",
       header: "",
       align: "right",
       cell: (row) => (
         <Button variant="ghost" size="sm" asChild className="group hover:bg-zinc-100 rounded-xl">
-          <Link href={`/tournaments/${row.competencia.torneoId}`} className="font-bold text-xs uppercase tracking-tighter">
+          <Link href={`/tournaments/${row.competencia.torneo.id}`} className="font-bold text-xs uppercase tracking-tighter">
             Ver Torneo <ArrowRight className="ml-2 h-3 w-3 transition-transform group-hover:translate-x-1" />
           </Link>
         </Button>

@@ -6,7 +6,7 @@ import { DataTable, ColumnDef } from "@/components/shared/DataTable";
 import { Button } from "@/components/ui/button";
 import { Loader2, Users } from "lucide-react";
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { InscriptionModal } from "./InscriptionModal";
 
@@ -17,6 +17,7 @@ interface CompetitionListProps {
 
 export function CompetitionList({ tournamentId, canRegister }: CompetitionListProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const { isAuthenticated, user } = useAuth();
   const [competitions, setCompetitions] = React.useState<Competition[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -33,9 +34,10 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
 
   const handleInscriptionClick = (comp: Competition) => {
     if (!isAuthenticated) {
-      router.push("/login");
+      router.push(`/login?redirect=${pathname}`);
       return;
     }
+    setSelectedComp(comp);
   };
 
   // Definición de columnas para nuestra DataTable genérica

@@ -1,20 +1,21 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { PageWrapper } from "@/components/shared/PageWrapper";
 import { FormTemplate } from "@/components/shared/FormTemplate";
 import { TextField, PasswordField, SelectField } from "@/components/shared";
-import { authService, CreateParticipanteDTO } from "@/features/auth/services/auth-service";
+import { authService } from "@/features/auth/services/auth-service";
+import { registerSchema, RegisterInput } from "@/lib/validations/auth"; // Importación corregida
 import { toast } from "sonner";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Trophy, ArrowLeft, UserPlus } from "lucide-react";
-// Importar el esquema de registro si ya lo tienes definido, sino puedes usar z.any() temporalmente
-// import { registerSchema } from "@/lib/validations/auth"; 
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectPath = searchParams.get("redirect");
 
   const tipoDocOptions = [
     { label: "DNI", value: "DNI" },
@@ -23,20 +24,28 @@ export default function RegisterPage() {
     { label: "Pasaporte", value: "PASAPORTE" },
   ];
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (values: RegisterInput) => {
     try {
+      // Mapeamos el esquema plano al DTO que espera el backend
       const payload = {
-        ...data,
-        email: data.email.trim(),
+        nombre: values.nombre,
+        apellido: values.apellido,
+        email: values.email.trim(),
+        password: values.password,
         documento: {
-          tipo: data.documento.tipo,
-          numero: String(data.documento.numero).trim()
+          tipo: values.documentoTipo as "DNI" | "LE" | "LC" | "PASAPORTE",
+          numero: values.documentoNumero.trim()
         }
       };
 
       await authService.register(payload);
       toast.success("¡Cuenta creada exitosamente!");
-      router.push("/login");
+      
+      const nextUrl = redirectPath 
+        ? `/login?redirect=${encodeURIComponent(redirectPath)}` 
+        : "/login";
+        
+      router.push(nextUrl);
     } catch (error) {
       // Manejado por interceptor
     }
@@ -46,18 +55,16 @@ export default function RegisterPage() {
     <PageWrapper className="bg-zinc-100">
       <div className="flex-1 flex items-center justify-center p-6 relative overflow-hidden">
         
-        {/* Botón flotante para volver */}
         <Link href="/" className="absolute top-8 left-8 flex items-center gap-2 text-zinc-500 hover:text-zinc-950 transition-colors font-medium text-sm z-20">
           <ArrowLeft size={16} /> Volver al inicio
         </Link>
 
-        {/* Decoración de fondo */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 bg-zinc-200/50 rounded-full blur-3xl -z-10" />
 
         <motion.div 
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-lg relative z-10" // Un poco más ancho (max-w-lg) para los campos grid
+          className="w-full max-w-lg relative z-10"
         >
           <div className="bg-white/70 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-2xl border border-white/20">
             
@@ -76,13 +83,14 @@ export default function RegisterPage() {
             <FormTemplate
               title=""
               description=""
-              schema={undefined as any} // Poner aquí tu registerSchema si lo tienes
+              schema={registerSchema}
               defaultValues={{ 
                 nombre: "", 
                 apellido: "", 
                 email: "", 
                 password: "", 
-                documento: { tipo: "DNI", numero: "" } 
+                documentoTipo: "DNI", 
+                documentoNumero: "" 
               }}
               onSubmit={onSubmit}
               submitText="Registrarme ahora"
@@ -115,7 +123,7 @@ export default function RegisterPage() {
                     <div className="col-span-1">
                       <SelectField
                         control={form.control}
-                        name="documento.tipo"
+                        name="documentoTipo"
                         label="Tipo"
                         options={tipoDocOptions}
                       />
@@ -123,7 +131,7 @@ export default function RegisterPage() {
                     <div className="col-span-2">
                       <TextField
                         control={form.control}
-                        name="documento.numero"
+                        name="documentoNumero"
                         label="Número de Documento"
                         placeholder="12345678"
                       />
@@ -139,7 +147,10 @@ export default function RegisterPage() {
                   <div className="pt-2 border-t border-zinc-100">
                     <p className="text-center text-sm text-zinc-500 font-medium">
                       ¿Ya tienes una cuenta?{" "}
-                      <Link href="/login" className="text-zinc-950 font-bold hover:underline">
+                      <Link 
+                        href={redirectPath ? `/login?redirect=${redirectPath}` : "/login"} 
+                        className="text-zinc-950 font-bold hover:underline"
+                      >
                         Inicia sesión acá
                       </Link>
                     </p>

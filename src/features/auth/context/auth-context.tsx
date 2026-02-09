@@ -18,7 +18,7 @@ interface AuthState {
 }
 
 interface AuthContextType extends AuthState {
-  login: (token: string, role: "admin" | "participant") => void;
+  login: (token: string, role: "admin" | "participant", redirectTo?: string | null) => void;
   logout: () => void;
 }
 
@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const login = (token: string, role: "admin" | "participant") => {
+  const login = (token: string, role: "admin" | "participant", redirectTo?: string | null) => {
     localStorage.setItem(role === "admin" ? "auth_token_admin" : "auth_token_participant", token);
     const decoded: any = jwtDecode(token);
     
@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isAuthenticated: true,
       user: { id: decoded.sub_id || decoded.id, sub: decoded.sub, roles: decoded.roles || [] }
     });
-    router.push(role === "admin" ? "/admin/tournaments" : "/dashboard");
+    redirectTo ? router.push(redirectTo) : router.push(role === "admin" ? "/admin/tournaments" : "/dashboard");
   };
 
   const logout = () => {

@@ -10,19 +10,22 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Trophy, ArrowRight, ArrowLeft } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
   const { login } = useAuth();
+  const searchParams = useSearchParams();
+  const redirectPath = searchParams.get("redirect");
 
   const onSubmit = async (values: LoginInput) => {
     try {
       const response = await authService.adminLogin(values);
-      login(response.token, "admin");
+      login(response.token, "admin", redirectPath);
       toast.success("¡Bienvenido de nuevo!");
     } catch (error: any) {
       try {
         const response = await authService.participantLogin(values);
-        login(response.token, "participant");
+        login(response.token, "participant", redirectPath);
         toast.success("¡Bienvenido de nuevo!");
       } catch (error: any) {
         toast.error(error?.title || "Error al iniciar sesión");
@@ -89,7 +92,7 @@ export default function LoginPage() {
                   <div className="pt-2">
                     <p className="text-center text-sm text-zinc-500 font-medium">
                       ¿Nuevo por acá?{" "}
-                      <Link href="/register" className="text-zinc-950 font-bold hover:underline inline-flex items-center gap-1 group">
+                      <Link href={redirectPath ? `/register?redirect=${redirectPath}` : "/register"} className="text-zinc-950 font-bold hover:underline inline-flex items-center gap-1 group">
                         Crear cuenta <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
                       </Link>
                     </p>

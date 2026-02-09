@@ -19,10 +19,10 @@ export const loginSchema = z.object({
  * Basado en POST /account
  */
 export const registerSchema = loginSchema.extend({
-  firstName: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
-  lastName: z.string().min(2, "El apellido debe tener al menos 2 caracteres"),
-  documentType: z.string().min(1, "Seleccione un tipo de documento"),
-  documentNumber: z
+  nombre: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
+  apellido: z.string().min(2, "El apellido debe tener al menos 2 caracteres"),
+  documentoTipo: z.string().min(1, "Seleccione un tipo de documento"),
+  documentoNumero: z
     .string()
     .min(6, "Número de documento inválido")
     .regex(/^\d+$/, "Solo se permiten números"),

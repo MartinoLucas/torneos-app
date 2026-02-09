@@ -21,7 +21,7 @@ export interface CreateParticipanteDTO {
 export const authService = {
   adminLogin: async (data: LoginInput): Promise<AuthResponse> => {
     // apiClient ahora devuelve directamente el T (AuthResponse en este caso)
-    return apiClient.post('/admin/auth', data);
+    return apiClient.post('/admin/auth', data, { _silent: true } as any);
   },
 
   participantLogin: async (data: LoginInput): Promise<AuthResponse> => {

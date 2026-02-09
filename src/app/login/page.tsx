@@ -19,16 +19,20 @@ export default function LoginPage() {
 
   const onSubmit = async (values: LoginInput) => {
     try {
+      // 1. Intento Admin (Silencioso gracias al interceptor)
       const response = await authService.adminLogin(values);
       login(response.token, "admin", redirectPath);
-      toast.success("¡Bienvenido de nuevo!");
+      toast.success("Bienvenido Administrador");
     } catch (error: any) {
+      // Si llegamos acá es porque admin falló, pero NO hubo toast
       try {
+        // 2. Intento Participante (Este sí disparará toast si falla)
         const response = await authService.participantLogin(values);
         login(response.token, "participant", redirectPath);
         toast.success("¡Bienvenido de nuevo!");
-      } catch (error: any) {
-        toast.error(error?.title || "Error al iniciar sesión");
+      } catch (participantError: any) {
+        // No hace falta hacer nada aquí, el interceptor ya mostró el toast 
+        // del error de participante si las credenciales eran inválidas.
       }
     }
   };

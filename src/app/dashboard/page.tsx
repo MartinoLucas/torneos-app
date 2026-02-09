@@ -6,11 +6,12 @@ import { DataTable, ColumnDef } from "@/components/shared/DataTable";
 import { inscriptionService } from "@/features/inscriptions/services/inscription-service";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Calendar, ArrowRight, CreditCard } from "lucide-react";
+import { Trophy, Calendar, ArrowRight, CreditCard, UserCircle, Activity } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -22,8 +23,6 @@ export default function DashboardPage() {
       setLoading(true);
       inscriptionService.getMyInscriptions(user.id)
         .then((data: any) => {
-          // Ajuste según tu API: si el interceptor ya devuelve el .body
-          // y dentro del body está el .content (paginación de Spring)
           setInscriptions(data.content || data || []);
         })
         .catch(() => setInscriptions([]))
@@ -37,8 +36,8 @@ export default function DashboardPage() {
       header: "Torneo / Competencia",
       cell: (row) => (
         <div className="flex flex-col py-1">
-          <span className="font-bold text-zinc-900">{row.competencia.torneoNombre}</span>
-          <span className="text-xs text-zinc-500">{row.competencia.nombre}</span>
+          <span className="font-bold text-zinc-900 uppercase italic tracking-tight">{row.competencia.torneoNombre}</span>
+          <span className="text-[10px] font-bold text-primary uppercase">{row.competencia.nombre}</span>
         </div>
       ),
     },
@@ -47,9 +46,9 @@ export default function DashboardPage() {
       header: "Inscripción",
       hideOnMobile: true,
       cell: (row) => (
-        <div className="flex items-center gap-2 text-zinc-600 text-sm">
+        <div className="flex items-center gap-2 text-zinc-500 text-sm font-medium">
           <Calendar className="h-3.5 w-3.5" />
-          {format(new Date(row.fechaInscripcion), "dd/MM/yyyy", { locale: es })}
+          {format(new Date(row.fechaInscripcion), "dd MMM, yyyy", { locale: es })}
         </div>
       ),
     },
@@ -62,8 +61,8 @@ export default function DashboardPage() {
             ${row.montoTotal.toLocaleString()}
           </span>
           {row.montoTotal < row.competencia.precio && (
-            <span className="text-[10px] text-green-600 font-bold uppercase tracking-tight">
-              50% Off aplicado
+            <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded flex w-fit font-black uppercase mt-1">
+              50% Off
             </span>
           )}
         </div>
@@ -74,10 +73,11 @@ export default function DashboardPage() {
       header: "Estado",
       cell: (row) => (
         <Badge 
+          variant="outline"
           className={
             row.estado === "CONFIRMADA" 
-              ? "bg-green-100 text-green-700 border-green-200 hover:bg-green-100" 
-              : "bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-100"
+              ? "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold" 
+              : "bg-amber-50 text-amber-700 border-amber-200 font-bold"
           }
         >
           {row.estado}
@@ -89,9 +89,9 @@ export default function DashboardPage() {
       header: "",
       align: "right",
       cell: (row) => (
-        <Button variant="ghost" size="sm" asChild className="group">
-          <Link href={`/tournaments/${row.competencia.torneoId}`}>
-            Ver Torneo <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+        <Button variant="ghost" size="sm" asChild className="group hover:bg-zinc-100 rounded-xl">
+          <Link href={`/tournaments/${row.competencia.torneoId}`} className="font-bold text-xs uppercase tracking-tighter">
+            Ver Torneo <ArrowRight className="ml-2 h-3 w-3 transition-transform group-hover:translate-x-1" />
           </Link>
         </Button>
       ),
@@ -99,49 +99,73 @@ export default function DashboardPage() {
   ];
 
   return (
-    <PageWrapper>
-      <div className="container mx-auto px-4 py-12">
-        {/* Bienvenida */}
-        <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-4xl font-black tracking-tight flex items-center gap-3 text-zinc-900">
-              <Trophy className="h-8 w-8 text-primary" /> Mi Panel
-            </h1>
-            <p className="text-zinc-500 mt-2">
-              Hola, <span className="font-semibold text-zinc-800">{user?.sub}</span>. Aquí tienes el resumen de tus actividades.
-            </p>
-          </div>
-          <Button asChild variant="outline">
-            <Link href="/">Explorar nuevos torneos</Link>
-          </Button>
-        </header>
-
-        {/* Stats rápidos (opcional, pero queda muy bien) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm">
-            <p className="text-zinc-500 text-sm font-medium">Torneos Activos</p>
-            <p className="text-3xl font-black mt-1">{inscriptions.length}</p>
-          </div>
-          <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm">
-            <p className="text-zinc-500 text-sm font-medium">Próxima Competencia</p>
-            <p className="text-lg font-bold mt-1 text-primary">
-              {inscriptions.length > 0 ? "Ver listado" : "Ninguna"}
-            </p>
+    <PageWrapper className="bg-zinc-100 min-h-screen">
+      {/* Hero Header - Negro Profundo */}
+      <header className="w-full bg-zinc-950 text-white pt-20 pb-16 border-b border-zinc-800 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] rounded-full -mr-20 -mt-20"></div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-zinc-500 text-xs font-bold uppercase tracking-widest">
+                <UserCircle className="h-4 w-4 text-primary" /> Perfil del Atleta
+              </div>
+              <h1 className="text-5xl md:text-6xl font-black tracking-tighter leading-none uppercase italic">
+                Mi <span className="text-zinc-400">Panel</span>
+              </h1>
+              <p className="text-zinc-400 font-medium">
+                Bienvenido, <span className="text-white">{user?.sub || "Usuario"}</span>. Gestiona tus inscripciones y torneos.
+              </p>
+            </div>
+            <Button asChild className="bg-white text-zinc-950 hover:bg-zinc-200 rounded-2xl font-bold px-8 h-12">
+              <Link href="/">Explorar Torneos</Link>
+            </Button>
           </div>
         </div>
+      </header>
 
-        {/* Tabla de Inscripciones */}
-        <div className="space-y-6">
-            <div className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5 text-zinc-400" />
-                <h2 className="text-xl font-bold text-zinc-800">Mis Inscripciones</h2>
+      <div className="container mx-auto px-4 -mt-8 pb-24 relative z-20">
+        {/* Quick Stats con Glassmorphism */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          {[
+            { label: "Torneos Activos", value: inscriptions.length, icon: Trophy },
+            { label: "Estado Global", value: "Atleta", icon: Activity },
+            { label: "Pagos Realizados", value: inscriptions.filter((i: any) => i.estado === "CONFIRMADA").length, icon: CreditCard },
+          ].map((stat, i) => (
+            <motion.div 
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 }}
+              className="bg-white/70 backdrop-blur-xl p-6 rounded-[2rem] border border-white/20 shadow-xl flex items-center justify-between"
+            >
+              <div>
+                <p className="text-zinc-500 text-xs font-bold uppercase tracking-wider">{stat.label}</p>
+                <p className="text-3xl font-black mt-1 text-zinc-900">{stat.value}</p>
+              </div>
+              <div className="bg-zinc-950 p-3 rounded-2xl text-white shadow-lg">
+                <stat.icon size={20} />
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Tabla con Glassmorphism */}
+        <div className="bg-white/70 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-10 shadow-2xl border border-white/20">
+            <div className="flex items-center gap-3 mb-8">
+                <div className="h-10 w-10 rounded-xl bg-zinc-950 flex items-center justify-center">
+                    <CreditCard className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black text-zinc-900 uppercase italic leading-none">Mis Inscripciones</h2>
+                  <p className="text-sm text-zinc-500 font-medium mt-1">Historial completo de competencias</p>
+                </div>
             </div>
             
             <DataTable 
                 data={inscriptions} 
                 columns={columns} 
-                loading={loading} // <-- Ahora esto compila perfectamente
-                searchPlaceholder="Buscar por torneo o categoría..."
+                loading={loading}
+                searchPlaceholder="Filtrar por torneo o categoría..."
                 searchAccessor={(row) => `${row.competencia.torneoNombre} ${row.competencia.nombre}`}
             />
         </div>

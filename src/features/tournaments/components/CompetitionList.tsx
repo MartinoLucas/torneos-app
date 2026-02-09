@@ -27,38 +27,39 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
   const [loading, setLoading] = React.useState(true);
   const [selectedComp, setSelectedComp] = React.useState<Competition | null>(null);
 
-  // Carga inicial de categorías
-  React.useEffect(() => {
-    tournamentService.getCompetitions(tournamentId)
-      .then(data => setCompetitions(data.content || []))
-      .catch(() => setCompetitions([]))
-      .finally(() => setLoading(false));
-  }, [tournamentId]);
+  // 1. Función Centralizada de Carga de Datos
+  const loadData = React.useCallback(async () => {
+    try {
+      // Cargamos las competencias (cupos globales actualizados)
+      const compData = await tournamentService.getCompetitions(tournamentId);
+      const comps = compData.content || [];
+      setCompetitions(comps);
 
-  // Función para refrescar el estado de inscripciones del usuario
-  const fetchUserStatus = React.useCallback(() => {
-    if (isAuthenticated && user?.id) {
-      inscriptionService.getMyInscriptions(user.id)
-        .then((data: any) => {          
-          const inscriptions = data.content || [];
-          const registeredCompIds = inscriptions.map((ins: any) => ins.competencia.id);
-          setAlreadyRegistered(registeredCompIds);
-          
-          const count = inscriptions.filter((ins: any) => 
-            String(ins.competencia.torneo.id) === String(tournamentId)
-          ).length;
-          setTournamentInscriptionsCount(count);
-        })
-        .catch(() => {
-          setAlreadyRegistered([]);
-          setTournamentInscriptionsCount(0);
-        });
+      // Si el usuario está logueado, cargamos su estado personal
+      if (isAuthenticated && user?.id) {
+        const insData = await inscriptionService.getMyInscriptions(user.id);
+        const inscriptions = insData.content || [];
+        
+        // IDs de competencias donde el usuario ya está
+        setAlreadyRegistered(inscriptions.map((ins: any) => ins.competencia.id));
+
+        // Contador para el 50% OFF (inscripciones en este torneo)
+        const count = inscriptions.filter((ins: any) => 
+          String(ins.competencia.torneo.id) === String(tournamentId)
+        ).length;
+        setTournamentInscriptionsCount(count);
+      }
+    } catch (error) {
+      console.error("Error cargando datos:", error);
+    } finally {
+      setLoading(false);
     }
-  }, [isAuthenticated, user, tournamentId]);
+  }, [tournamentId, isAuthenticated, user]);
 
+  // Ejecución inicial
   React.useEffect(() => {
-    fetchUserStatus();
-  }, [fetchUserStatus]);
+    loadData();
+  }, [loadData]);
 
   const handleInscriptionClick = (comp: Competition) => {
     if (!isAuthenticated) {
@@ -74,8 +75,12 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
       header: "Categoría",
       cell: (row) => (
         <div className="py-1">
-          <div className="font-bold text-zinc-900 uppercase italic tracking-tighter leading-none">{row.nombre}</div>
-          <div className="text-[10px] text-muted-foreground line-clamp-1 mt-1 font-medium">{row.descripcion}</div>
+          <div className="font-bold text-zinc-900 uppercase italic tracking-tighter leading-none">
+            {row.nombre}
+          </div>
+          <div className="text-[10px] text-muted-foreground line-clamp-1 mt-1 font-medium">
+            {row.descripcion}
+          </div>
         </div>
       ),
     },
@@ -84,11 +89,22 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
       header: "Disponibilidad",
       hideOnMobile: true,
       cell: (row) => {
-        const remaining = row.cupo - row.inscriptosActuales;
+        // El cupo real viene de la data global de la competencia
+        const available = row.cupo - row.inscriptosActuales;
+        const isLow = available <= 5;
+        
         return (
-          <span className={`text-xs font-bold ${remaining <= 5 ? 'text-red-500' : 'text-zinc-500'}`}>
-            {remaining} lugares restantes
-          </span>
+          <div className="flex flex-col">
+            <span className={`text-xs font-bold ${isLow ? 'text-red-500' : 'text-zinc-500'}`}>
+              {available <= 0 ? "Cupo lleno" : `${available} lugares restantes`}
+            </span>
+            <div className="w-24 h-1 bg-zinc-100 rounded-full mt-1 overflow-hidden">
+              <div 
+                className={`h-full ${isLow ? 'bg-red-500' : 'bg-emerald-500'}`} 
+                style={{ width: `${(row.inscriptosActuales / row.cupo) * 100}%` }}
+              />
+            </div>
+          </div>
         );
       },
     },
@@ -106,24 +122,29 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
       id: "acciones",
       header: "",
       align: "right",
-      cell: (row) => (
-        <Button 
-          size="sm" 
-          variant={alreadyRegistered.includes(row.id) ? "secondary" : "default"}
-          disabled={!canRegister || alreadyRegistered.includes(row.id)}
-          className="rounded-full px-6 font-bold uppercase text-[10px] tracking-widest"
-          onClick={() => handleInscriptionClick(row)}
-        >
-          {alreadyRegistered.includes(row.id) ? "Inscripto" : canRegister ? "Inscribirse" : "Cerrado"}
-        </Button>
-      ),
+      cell: (row) => {
+        const isFull = (row.cupo - row.inscriptosActuales) <= 0;
+        const isRegistered = alreadyRegistered.includes(row.id);
+
+        return (
+          <Button 
+            size="sm" 
+            variant={isRegistered ? "secondary" : "default"}
+            disabled={!canRegister || isRegistered || isFull}
+            className="rounded-full px-6 font-bold uppercase text-[10px] tracking-widest"
+            onClick={() => handleInscriptionClick(row)}
+          >
+            {isRegistered ? "Inscripto" : isFull ? "Agotado" : canRegister ? "Inscribirse" : "Cerrado"}
+          </Button>
+        );
+      },
     },
   ];
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center py-20 gap-4">
       <Loader2 className="h-8 w-8 animate-spin text-zinc-300" />
-      <p className="text-xs font-bold uppercase tracking-widest text-zinc-400">Sincronizando categorías...</p>
+      <p className="text-xs font-bold uppercase tracking-widest text-zinc-400">Actualizando cupos...</p>
     </div>
   );
 
@@ -137,13 +158,10 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
         <div className="bg-zinc-950 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 text-white shadow-xl">
           <Users className="h-8 w-8" />
         </div>
-        <h3 className="text-xl font-black uppercase italic text-zinc-900">Listado de Categorías</h3>
+        <h3 className="text-xl font-black uppercase italic text-zinc-900">Sin categorías</h3>
         <p className="text-zinc-500 mt-2 max-w-sm mx-auto text-sm font-medium">
-          Estamos terminando de configurar los cupos para este torneo.
+          No hay competencias configuradas para este torneo aún.
         </p>
-        <Button variant="outline" className="mt-6 rounded-xl font-bold uppercase text-xs" disabled>
-          Próximamente
-        </Button>
       </motion.div>
     );
   }
@@ -163,7 +181,7 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
         tournamentId={tournamentId}
         previousInscriptionsCount={tournamentInscriptionsCount}
         onClose={() => setSelectedComp(null)}
-        onSuccess={fetchUserStatus}
+        onSuccess={loadData} // <--- loadData refresca TODO
       />
     </div>
   );

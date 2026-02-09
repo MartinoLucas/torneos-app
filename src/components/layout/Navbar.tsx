@@ -10,7 +10,7 @@ import { useAuth } from "@/features/auth/context/auth-context";
 import { useRouter } from "next/navigation";
 
 export function Navbar() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, role } = useAuth();
   const [isSearchFocused, setIsSearchFocused] = React.useState(false);
   const router = useRouter();
 
@@ -55,7 +55,7 @@ export function Navbar() {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                onClick={() => router.push("/dashboard")} 
+                onClick={() => router.push(role === "admin" ? "/admin/tournaments" : "/dashboard")} 
                 className="rounded-2xl hover:bg-zinc-200/50 text-zinc-600 hover:text-zinc-950"
               >
                 <User size={20} />

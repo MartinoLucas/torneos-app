@@ -67,12 +67,12 @@ export default function AdminTournamentsPage() {
             const styles: any = {
                 BORRADOR: "bg-blue-50 text-blue-600 border-blue-200",
                 PUBLICADO: "bg-emerald-50 text-emerald-600 border-emerald-200",
-                FINALIZADO: "bg-zinc-100 text-zinc-500 border-zinc-200",
+                FINALIZADO: "bg-red-500/10 text-red-400 border-red-500/20",
             };
             const label: any = {
                 BORRADOR: "BORRADOR",
                 PUBLICADO: "EN CURSO",
-                FINALIZADO: "CERRADO",
+                FINALIZADO: "FINALIZADO",
             };
             return (
                 <Badge variant="outline" className={`${styles[row.estado] || ""} font-black text-[10px] px-2`}>

@@ -14,53 +14,50 @@ export default function Home() {
   React.useEffect(() => {
     tournamentService.getUpcoming()
       .then((data) => {
-        // 'data' ahora es el objeto paginado, extraemos 'content'
         if (data && Array.isArray(data.content)) {
           setTournaments(data.content);
         } else {
-          console.error("No se encontró el array 'content':", data);
           setTournaments([]);
         }
       })
-      .catch((err) => {
-        console.error("Error al cargar torneos:", err);
-        setTournaments([]);
-      })
+      .catch(() => setTournaments([]))
       .finally(() => setLoading(false));
   }, []);
 
   return (
-    <PageWrapper>
-      <section className="container mx-auto px-4 py-12">
-        {/* Hero Text */}
-        <div className="text-center mb-16">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-6xl font-extrabold tracking-tight mb-4"
+    <PageWrapper className="bg-zinc-100 min-h-screen">
+      {/* Hero Section: Negro Profundo e Italic para coherencia */}
+      <section className="w-full bg-zinc-950 text-white py-24 mb-12 border-b border-zinc-800 relative overflow-hidden">
+        {/* Decoración sutil de fondo */}
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(24,24,27,0.5),rgba(9,9,11,1))]" />
+        
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
           >
-            Competí en los mejores <br />
-            <span className="text-primary">Torneos de la Región</span>
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-muted-foreground max-w-2xl mx-auto"
-          >
-            Explorá las próximas competencias, inscribite fácilmente y hacé un seguimiento de tu progreso.
-          </motion.p>
+            <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-none uppercase italic mb-6">
+              Competí en los <br />
+              <span className="text-zinc-400">Mejores Torneos</span>
+            </h1>
+            <p className="text-zinc-500 text-lg md:text-xl max-w-2xl mx-auto font-medium leading-relaxed">
+              Explorá las próximas competencias, inscribite en segundos y 
+              llevá tu rendimiento al siguiente nivel.
+            </p>
+          </motion.div>
         </div>
+      </section>
 
-        {/* Listado de Torneos */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Listado de Torneos sobre fondo grisáceo */}
+      <section className="container mx-auto px-4 pb-24">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {loading ? (
-            // Skeletons con Tailwind 4 (usando clases nativas como w-full)
-            [...Array(3)].map((_, i) => (
-              <div key={i} className="space-y-4 p-4 border rounded-xl">
-                <Skeleton className="h-40 w-full rounded-lg" />
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-4 w-full" />
+            [...Array(6)].map((_, i) => (
+              <div key={i} className="bg-white/40 backdrop-blur-md p-6 rounded-3xl border border-white/20 h-80 space-y-4">
+                <Skeleton className="h-40 w-full rounded-2xl bg-zinc-200" />
+                <Skeleton className="h-6 w-3/4 bg-zinc-200" />
+                <Skeleton className="h-4 w-full bg-zinc-200" />
               </div>
             ))
           ) : (
@@ -68,8 +65,9 @@ export default function Home() {
               <motion.div
                 key={t.id}
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.05 }}
               >
                 <TournamentCard tournament={t} />
               </motion.div>

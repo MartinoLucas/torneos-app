@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist } from "next/font/google";
 import "./globals.css";
-import { FramerProvider } from "@/components/providers/framer-provider";
-import { Toaster } from "@/components/ui/sonner";
-import { AuthProvider } from "@/features/auth/context/auth-context";
-import { Navbar } from "@/components/layout/Navbar";
+import { RootLayoutClient } from "@/components/layout/RootLayoutClient";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,22 +15,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={`${geistSans.variable} antialiased`}>
-        <AuthProvider>
-          <FramerProvider>
-            <Navbar />
-            <main className="pt-16 min-h-screen">
-              {children}
-            </main>
-            {/* Toaster de Sonner para notificaciones globales */}
-            <Toaster position="top-right" richColors closeButton />
-          </FramerProvider>
-        </AuthProvider>
+        {/* Delegamos toda la lógica de cliente a este componente */}
+        <RootLayoutClient>
+          {children}
+        </RootLayoutClient>
       </body>
     </html>
   );

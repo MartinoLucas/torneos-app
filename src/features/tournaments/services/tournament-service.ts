@@ -31,9 +31,14 @@ export interface Competition {
 }
 
 export const tournamentService = {
-  // GET /tournaments (Público/Participante)
-  getUpcoming: async (): Promise<PaginatedResponse<Tournament>> => {
-    return apiClient.get('/tournaments');
+
+  getPublished: async (params?: { search?: string, size?: number }): Promise<PaginatedResponse<Tournament>> => {
+    return apiClient.get('/tournaments', {
+      params: {
+        ...params,
+        sort: 'fechaInicio,asc'
+      }
+    });
   },
 
   // GET /tournament/:id

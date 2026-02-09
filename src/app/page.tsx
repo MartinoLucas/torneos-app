@@ -12,7 +12,7 @@ export default function Home() {
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    tournamentService.getUpcoming()
+    tournamentService.getPublished()
       .then((data) => {
         if (data && Array.isArray(data.content)) {
           // ordenamos los torneos por fecha de inicio, los más cercanos primero, los que tienen fecha de inicio antes de la fecha actual van al final

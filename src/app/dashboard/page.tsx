@@ -33,7 +33,16 @@ export default function DashboardPage() {
   const columns: ColumnDef<any>[] = [
     {
       id: "torneo",
-      header: "Torneo / Competencia",
+      header: "Torneo",
+      cell: (row) => (
+        <div className="flex flex-col">
+          <span className="font-bold tracking-tight text-zinc-900">{row.competencia.torneo.nombre}</span>
+        </div>
+      ),
+    },
+    {
+      id: "competencia",
+      header: "Competencia",
       cell: (row) => (
         <div className="flex flex-col py-1">
           <span className="font-bold text-zinc-900 uppercase italic tracking-tight">{row.competencia.torneoNombre}</span>
@@ -127,7 +136,7 @@ export default function DashboardPage() {
         {/* Quick Stats con Glassmorphism */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           {[
-            { label: "Torneos Activos", value: inscriptions.length, icon: Trophy },
+            { label: "Inscripciones Activas", value: inscriptions.length, icon: Trophy },
             { label: "Estado Global", value: "Atleta", icon: Activity },
             { label: "Pagos Realizados", value: inscriptions.filter((i: any) => i.estado === "CONFIRMADA").length, icon: CreditCard },
           ].map((stat, i) => (

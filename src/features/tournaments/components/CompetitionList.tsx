@@ -17,7 +17,7 @@ interface CompetitionListProps {
 
 export function CompetitionList({ tournamentId, canRegister }: CompetitionListProps) {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [competitions, setCompetitions] = React.useState<Competition[]>([]);
   const [loading, setLoading] = React.useState(true);
   
@@ -36,7 +36,6 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
       router.push("/login");
       return;
     }
-    setSelectedComp(comp);
   };
 
   // Definición de columnas para nuestra DataTable genérica

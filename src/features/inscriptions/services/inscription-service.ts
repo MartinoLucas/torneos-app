@@ -10,8 +10,14 @@ export const inscriptionService = {
    * Crea una nueva inscripción.
    * El endpoint según tu controlador es POST /tournament/{tId}/competitions/{cId}/inscription
    */
-  create: async (tournamentId: string | number, competitionId: string | number) => {
-    return apiClient.post(`/tournaments/${tournamentId}/competitions/${competitionId}/inscription`, {});
+  create: async (tournamentId: string | number, competitionId: string | number, userId: string | number) => {    
+    return apiClient.post(`/tournaments/${tournamentId}/competitions/${competitionId}/inscriptions`,
+       {
+        competenciaId: competitionId, 
+        participanteId: userId, 
+        fechaInscripcion: new Date().toISOString()
+      }
+    );
   },
 
   /**

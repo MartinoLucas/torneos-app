@@ -15,6 +15,7 @@ import { inscriptionService } from "@/features/inscriptions/services/inscription
 import { Loader2, CheckCircle2, Ticket, Wallet, Info } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { useAuth } from "@/features/auth/context/auth-context";
 
 interface InscriptionModalProps {
   competition: Competition | null;
@@ -25,13 +26,15 @@ interface InscriptionModalProps {
 
 export function InscriptionModal({ competition, tournamentId, isOpen, onClose }: InscriptionModalProps) {
   const [isPending, setIsPending] = React.useState(false);
+  const {user} = useAuth();
 
   if (!competition) return null;
 
   const handleConfirm = async () => {
     setIsPending(true);
     try {
-      await inscriptionService.create(tournamentId, competition.id);
+      if (!user?.id) return;
+      await inscriptionService.create(tournamentId, competition.id, user?.id);
       toast.success("¡Inscripción exitosa!", {
         description: `Ya estás registrado en ${competition.nombre}`
       });

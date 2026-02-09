@@ -9,16 +9,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { CreditCard, Search } from "lucide-react";
+import { Search, Inbox, Loader2 } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
+import { motion } from "framer-motion";
 
 export type ColumnDef<T> = {
   id: string;
@@ -51,7 +45,6 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   const [searchTerm, setSearchTerm] = React.useState("");
 
-  // Lógica de filtrado reactiva
   const filteredData = React.useMemo(() => {
     if (!searchTerm) return data;
     const s = searchTerm.toLowerCase();
@@ -64,42 +57,52 @@ export function DataTable<T>({
   }, [data, searchTerm, searchAccessor]);
 
   return (
-    <Card className="w-full shadow-sm border-zinc-200/60 bg-white">
+    <div className="w-full space-y-6">
+      {/* Header de la Tabla */}
       {(title || description || headerActions) && (
-        <CardHeader className="pb-4">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              {title && <CardTitle className="text-xl font-bold">{title}</CardTitle>}
-              {description && <CardDescription>{description}</CardDescription>}
-            </div>
-            <div className="flex items-center gap-2">
-              {headerActions}
-            </div>
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between px-2">
+          <div>
+            {title && (
+              <h2 className="text-2xl font-black uppercase italic tracking-tighter text-zinc-900 leading-none">
+                {title}
+              </h2>
+            )}
+            {description && (
+              <p className="text-sm text-zinc-500 font-medium mt-1">{description}</p>
+            )}
           </div>
-        </CardHeader>
+          <div className="flex items-center gap-3">
+            {headerActions}
+          </div>
+        </div>
       )}
 
-      <CardContent className="space-y-4">
-        {/* Barra de búsqueda */}
-        <div className="relative w-full max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder={searchPlaceholder}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
-          />
+      {/* Contenedor Principal (Efecto Vidrio) */}
+      <div className="bg-white/70 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white/20 overflow-hidden transition-all duration-300">
+        
+        {/* Barra de búsqueda integrada */}
+        <div className="p-6 pb-2">
+          <div className="relative w-full max-w-md group">
+            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 group-focus-within:text-primary transition-colors" />
+            <Input
+              placeholder={searchPlaceholder}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-11 bg-zinc-100/50 border-transparent focus:bg-white focus:ring-1 focus:ring-zinc-200 transition-all duration-300 rounded-2xl h-11 placeholder:text-zinc-400 font-medium"
+            />
+          </div>
         </div>
 
-        {/* Tabla Responsiva */}
-        <div className="rounded-md border border-zinc-200 overflow-hidden">
+        {/* Tabla */}
+        <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-zinc-50/50">
-              <TableRow>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent border-zinc-100">
                 {columns.map((col) => (
                   <TableHead
                     key={col.id}
                     className={`
+                      h-12 py-4 px-6 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400
                       ${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left"}
                       ${col.hideOnMobile ? "hidden md:table-cell" : ""}
                     `}
@@ -110,53 +113,62 @@ export function DataTable<T>({
               </TableRow>
             </TableHeader>
             <TableBody>
-            {loading ? (
-              // Mostrar Skeletons solo mientras loading sea true
-              Array.from({ length: 5 }).map((_, rowIndex) => (
-                <TableRow key={`skeleton-${rowIndex}`}>
-                  {columns.map((col) => (
-                    <TableCell 
-                      key={`skeleton-cell-${col.id}`}
-                      className={col.hideOnMobile ? "hidden md:table-cell" : ""}
+              {loading ? (
+                Array.from({ length: 5 }).map((_, rowIndex) => (
+                  <TableRow key={`skeleton-${rowIndex}`} className="border-zinc-50">
+                    {columns.map((col) => (
+                      <TableCell 
+                        key={`skeleton-cell-${col.id}`}
+                        className={`px-6 py-4 ${col.hideOnMobile ? "hidden md:table-cell" : ""}`}
+                      >
+                        <Skeleton className="h-5 w-full rounded-lg bg-zinc-200/50" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : filteredData.length > 0 ? (
+                filteredData.map((row, rowIndex) => (
+                  <TableRow 
+                    key={rowIndex} 
+                    className="group border-zinc-50 hover:bg-zinc-50/80 transition-all duration-200"
+                  >
+                    {columns.map((col) => (
+                      <TableCell
+                        key={col.id}
+                        className={`
+                          px-6 py-4 text-sm
+                          ${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left"}
+                          ${col.hideOnMobile ? "hidden md:table-cell" : ""}
+                        `}
+                      >
+                        {col.cell(row, rowIndex)}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-64 text-center">
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="flex flex-col items-center justify-center gap-3"
                     >
-                      <Skeleton className="h-6 w-full rounded-md opacity-50" />
-                    </TableCell>
-                  ))}
+                      <div className="bg-zinc-100 p-4 rounded-3xl">
+                        <Inbox className="h-10 w-10 text-zinc-300" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="font-black uppercase italic text-zinc-900 tracking-tight">Sin resultados</p>
+                        <p className="text-xs text-zinc-500 font-medium">No encontramos lo que buscas por aquí.</p>
+                      </div>
+                    </motion.div>
+                  </TableCell>
                 </TableRow>
-              ))
-            ) : filteredData.length > 0 ? (
-              // Mostrar datos si hay
-              filteredData.map((row, rowIndex) => (
-                <TableRow key={rowIndex} className="hover:bg-zinc-50/50 transition-colors">
-                  {columns.map((col) => (
-                    <TableCell
-                      key={col.id}
-                      className={`
-                        ${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left"}
-                        ${col.hideOnMobile ? "hidden md:table-cell" : ""}
-                      `}
-                    >
-                      {col.cell(row, rowIndex)}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              // ESTADO VACÍO: Solo se muestra si loading es false y no hay data
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-48 text-center">
-                  <div className="flex flex-col items-center justify-center gap-2 text-zinc-500">
-                    <CreditCard className="h-10 w-10 text-zinc-200" />
-                    <p className="font-medium text-lg italic">No tienes inscripciones aún</p>
-                    <p className="text-sm not-italic">Explora los torneos disponibles para empezar.</p>
-                  </div>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
+              )}
+            </TableBody>
           </Table>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

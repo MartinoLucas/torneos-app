@@ -6,11 +6,12 @@ import { DataTable, ColumnDef } from "@/components/shared/DataTable";
 import { adminAccountService } from "@/features/admin/services/admin-account-service";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { UserPlus, ShieldCheck, Power, PowerOff, Edit3, Mail, Fingerprint } from "lucide-react";
+import { UserPlus, ShieldCheck, Power, PowerOff, Edit3, Mail, Fingerprint, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { CreateAdminModal } from "@/features/admin/components/CreateAdminModal";
 import { EditAdminModal } from "@/features/admin/components/EditAdminModal";
+import { useAuth } from "@/features/auth/context/auth-context";
 
 export default function AdminAccountsPage() {
   const [accounts, setAccounts] = React.useState([]);
@@ -18,6 +19,8 @@ export default function AdminAccountsPage() {
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
   const [selectedAdmin, setSelectedAdmin] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
+
+  const { user } = useAuth();
 
   const loadAccounts = async () => {
     setLoading(true);
@@ -52,7 +55,7 @@ export default function AdminAccountsPage() {
         <div className="flex flex-col py-1">
           <span className="font-black uppercase italic text-zinc-900 tracking-tight">{row.nombre} {row.apellido}</span>
           <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 font-bold uppercase">
-            <Mail size={10} className="text-primary" /> {row.email}
+            <Mail size={10} className="text-primary" /> {row.email} {user?.id === row.id && (<span className="bg-zinc-200 text-zinc-600 px-2 pt-1 rounded-md ml-2">Tú</span>)}
           </div>
         </div>
       )
@@ -89,12 +92,20 @@ export default function AdminAccountsPage() {
           >
             {!row.deletedAt ? <PowerOff size={16} /> : <Power size={16} />}
           </Button>
-          <Button variant="outline" 
+          {row.id === user?.id ?(
+            <Button variant="outline" 
                   size="sm" 
                   className="rounded-xl border-zinc-200 hover:bg-zinc-950 hover:text-white group" 
                   onClick={() => handleEditClick(row)}>
             <Edit3 size={16} className="group-hover:scale-110 transition-transform" />
           </Button>
+          ) :
+          (<Button variant="ghost" 
+                  size="sm" 
+                  className="rounded-xl border-zinc-200" disabled>
+            <Edit3 size={16} />
+          </Button>)
+          }
         </div>
       ),
     },
@@ -117,12 +128,21 @@ export default function AdminAccountsPage() {
                 Gestión de privilegios y control de acceso para el personal administrativo.
               </p>
             </div>
-            <Button 
-              className="bg-primary text-primary-foreground hover:scale-105 transition-transform rounded-2xl font-bold px-8 h-12 shadow-lg shadow-primary/20"
-              onClick={() => setIsCreateModalOpen(true)}
-            >
-              <UserPlus className="h-5 w-5 mr-2" /> Nuevo Admin
-            </Button>
+            
+            <div className="flex flex-row gap-2">
+              <Button 
+                className="bg-primary text-primary-foreground hover:scale-105 transition-transform rounded-2xl font-bold px-8 h-12 shadow-lg shadow-primary/20"
+                onClick={() => window.location.href = "/admin/tournaments"}
+              >
+                <Trophy className="h-5 w-5 mr-2" /> Torneos
+              </Button>
+              <Button 
+                className="bg-primary text-primary-foreground hover:scale-105 transition-transform rounded-2xl font-bold px-8 h-12 shadow-lg shadow-primary/20"
+                onClick={() => setIsCreateModalOpen(true)}
+              >
+                <UserPlus className="h-5 w-5 mr-2" /> Nuevo Admin
+              </Button>
+            </div>
           </div>
         </div>
       </header>

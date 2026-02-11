@@ -25,7 +25,7 @@ export default function DashboardPage() {
 
   React.useEffect(() => {
     // Regla 1: Si no hay usuario (después de cargar auth), error o redirect
-    if (!isAuthenticated) {
+    if (!user?.id) {
         setAccessError({ 
             title: "Acceso Denegado", 
             description: "Debes iniciar sesión para ver tu panel." 
@@ -170,7 +170,11 @@ export default function DashboardPage() {
       align: "right",
       cell: (row) => (
         <Button variant="ghost" size="sm" asChild className="group hover:bg-zinc-100 rounded-xl">
-          <Link href={`/tournaments/${row.competencia.torneo.id}`} className="font-bold text-xs uppercase tracking-tighter">
+          {/* Añadimos ?from=dashboard a la URL */}
+          <Link 
+            href={`/tournaments/${row.competencia.torneo.id}?from=dashboard`} 
+            className="font-bold text-xs uppercase tracking-tighter"
+          >
             Ver Torneo <ArrowRight className="ml-2 h-3 w-3 transition-transform group-hover:translate-x-1" />
           </Link>
         </Button>

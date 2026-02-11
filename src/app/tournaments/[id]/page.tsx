@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { PageWrapper } from "@/components/shared/PageWrapper";
 import { tournamentService } from "@/features/tournaments/services/tournament-service";
 import { Badge } from "@/components/ui/badge";
@@ -24,12 +24,14 @@ import { useAuth } from "@/features/auth/context/auth-context";
 export default function TournamentDetailPage() {
   const { id } = useParams();
   const { user, role } = useAuth();
+  const searchParams = useSearchParams();
 
   const [tournament, setTournament] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
   const [canRegister, setCanRegister] = React.useState(false);
 
   const isAdmin = role === "admin";
+  const fromDashboard = searchParams.get("from") === "dashboard";
 
   // Estilos de estado con efecto Glassmorphism mejorado
   const statusStyles = {
@@ -96,11 +98,19 @@ export default function TournamentDetailPage() {
 
         <div className="container mx-auto px-4 py-16 relative z-10">
           {!isAdmin ? (
-            <Link href="/">
-              <Button variant="ghost" size="sm" className="mb-8 text-zinc-400 hover:text-white hover:bg-white/5">
-                <ArrowLeft className="mr-2 h-4 w-4" /> Volver al catálogo
-              </Button>
-          </Link>
+            fromDashboard ? (
+              <Link href="/dashboard">
+                <Button variant="ghost" size="sm" className="mb-8 text-zinc-400 hover:text-white hover:bg-white/5">
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Volver al dashboard
+                </Button>
+              </Link>
+              ) : (
+                <Link href="/">
+                  <Button variant="ghost" size="sm" className="mb-8 text-zinc-400 hover:text-white hover:bg-white/5">
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Volver al catálogo
+                  </Button>
+                </Link>
+            )
           ) : (
             <Link href="/admin/tournaments">
               <Button variant="ghost" size="sm" className="mb-8 text-zinc-500 hover:text-white hover:bg-white/5 font-bold uppercase text-[10px] tracking-widest">

@@ -10,6 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { InscriptionModal } from "./InscriptionModal";
 import { inscriptionService } from "@/features/inscriptions/services/inscription-service";
+import { toast } from "sonner";
 
 interface CompetitionListProps {
   tournamentId: string | number;
@@ -19,7 +20,7 @@ interface CompetitionListProps {
 export function CompetitionList({ tournamentId, canRegister }: CompetitionListProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, role } = useAuth();
   
   const [competitions, setCompetitions] = React.useState<Competition[]>([]);
   const [alreadyRegistered, setAlreadyRegistered] = React.useState<number[]>([]);
@@ -36,7 +37,7 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
       setCompetitions(comps);
 
       // Si el usuario está logueado, cargamos su estado personal
-      if (isAuthenticated && user?.id) {
+      if (isAuthenticated && user?.id && role != 'admin') {
         const insData = await inscriptionService.getMyInscriptions(user.id);
         const inscriptions = insData.content || [];
         
@@ -50,7 +51,10 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
         setTournamentInscriptionsCount(count);
       }
     } catch (error) {
-      console.error("Error cargando datos:", error);
+      toast.error("Error al cargar competencias");
+      setCompetitions([]);
+      setAlreadyRegistered([]);
+      setTournamentInscriptionsCount(0);
     } finally {
       setLoading(false);
     }
@@ -62,6 +66,7 @@ export function CompetitionList({ tournamentId, canRegister }: CompetitionListPr
   }, [loadData]);
 
   const handleInscriptionClick = (comp: Competition) => {
+    if (role === 'admin') return;
     if (!isAuthenticated) {
       router.push(`/login?redirect=${pathname}`);
       return;

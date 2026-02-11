@@ -8,7 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
   Calendar, Trophy, Info, ArrowLeft, 
-  AlertCircle, Share2, Clock, CheckCircle2
+  AlertCircle, Share2, Clock, CheckCircle2,
+  LayoutDashboard,
+  Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format, isBefore, parseISO } from "date-fns";
@@ -17,12 +19,17 @@ import Link from "next/link";
 import { CompetitionList } from "@/features/tournaments/components/CompetitionList";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { useAuth } from "@/features/auth/context/auth-context";
 
 export default function TournamentDetailPage() {
   const { id } = useParams();
+  const { user, role } = useAuth();
+
   const [tournament, setTournament] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
   const [canRegister, setCanRegister] = React.useState(false);
+
+  const isAdmin = role === "admin";
 
   // Estilos de estado con efecto Glassmorphism mejorado
   const statusStyles = {
@@ -39,6 +46,21 @@ export default function TournamentDetailPage() {
       badge: "bg-zinc-100 text-zinc-500 border-zinc-200"
     }
   };
+
+  // Lógica de estilos para el Hero según el Rol
+  const heroStyles = isAdmin 
+    ? {
+        container: "bg-zinc-900 text-white border-b border-zinc-800 shadow-inner",
+        badge: "bg-primary/20 text-primary border-primary/30",
+        subtitle: "text-primary font-black uppercase tracking-[0.3em] text-[10px]",
+        decorator: "bg-[radial-gradient(circle_at_50%_50%,rgba(var(--primary-rgb),0.15),transparent)]"
+      }
+    : {
+        container: "bg-zinc-950 text-white border-b border-zinc-800",
+        badge: canRegister ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/40" : "bg-zinc-800 text-zinc-400 border-zinc-700",
+        subtitle: "text-zinc-500 font-bold uppercase tracking-[0.2em] text-[10px]",
+        decorator: ""
+      };
 
   const currentStyle = canRegister ? statusStyles.open : statusStyles.closed;
 
@@ -68,16 +90,33 @@ export default function TournamentDetailPage() {
   return (
     <PageWrapper className="bg-zinc-100 min-h-screen">
       {/* Header / Hero Section */}
-      <div className="w-full bg-zinc-950 text-white border-b border-zinc-800">
+      <div className={`w-full ${heroStyles.container} relative overflow-hidden`}>
+        {/* Decorador de fondo solo para Admin */}
+        {isAdmin && <div className={`absolute inset-0 ${heroStyles.decorator} z-0`} />}
+
         <div className="container mx-auto px-4 py-16 relative z-10">
-          <Link href="/">
-            <Button variant="ghost" size="sm" className="mb-8 text-zinc-400 hover:text-white hover:bg-white/5">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Volver al catálogo
-            </Button>
+          {!isAdmin ? (
+            <Link href="/">
+              <Button variant="ghost" size="sm" className="mb-8 text-zinc-400 hover:text-white hover:bg-white/5">
+                <ArrowLeft className="mr-2 h-4 w-4" /> Volver al catálogo
+              </Button>
           </Link>
+          ) : (
+            <Link href="/admin/tournaments">
+              <Button variant="ghost" size="sm" className="mb-8 text-zinc-500 hover:text-white hover:bg-white/5 font-bold uppercase text-[10px] tracking-widest">
+                <ArrowLeft className="mr-2 h-4 w-4" /> Volver a Gestión
+              </Button>
+            </Link>
+          )}
 
           <div className="max-w-4xl space-y-6">
             <div className="flex items-center gap-3">
+              {isAdmin && (
+                <div className="bg-emerald-500/10 text-emerald-400 border-emerald-500/40 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border flex items-center gap-2 animate-pulse">
+                  <Eye className="h-3 w-3" />
+                  Estas viendo como PARTICIPANTE
+                </div>
+              )}
               <Badge variant="outline" className={
                 canRegister 
                 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/40" 

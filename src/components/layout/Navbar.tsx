@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/context/auth-context";
 import { useRouter } from "next/navigation";
 import { tournamentService, Tournament } from "@/features/tournaments/services/tournament-service";
+import { toast } from "sonner";
 
 export function Navbar() {
   const { isAuthenticated, logout, role } = useAuth();
@@ -46,7 +47,8 @@ export function Navbar() {
       
       setResults(filtered);
     } catch (e) {
-      console.error("Error en búsqueda:", e);
+      toast.error("Error al buscar torneos");
+      setResults([]);
     } finally {
       setLoading(false);
     }

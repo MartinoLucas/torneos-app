@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import { ApiResponse, ApiError } from '@/types/api';
+import { toast } from 'sonner';
 
 declare module 'axios' {
   export interface AxiosRequestConfig {
@@ -55,7 +56,14 @@ apiClient.interceptors.response.use(
     }
 
     if (error.response?.status === 401) {
-      console.warn("Sesión expirada o no autorizada");
+      toast.error("Sesión expirada", {
+        description: "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.",
+      });
+      localStorage.removeItem('auth_token_admin');
+      localStorage.removeItem('auth_token_participant');
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 1500);
     }
 
     return Promise.reject(errorInfo);

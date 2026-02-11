@@ -27,7 +27,7 @@ export default function AdminAccountsPage() {
     try {
       const res: any = await adminAccountService.getAll();
       setAccounts(res.content || res || []);
-    } catch (e) { console.error(e); }
+    } catch (e) { toast.error("Error al cargar cuentas"); }
     finally { setLoading(false); }
   };
 

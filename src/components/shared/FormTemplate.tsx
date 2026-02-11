@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Loader2, Save, RotateCcw } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 interface FormTemplateProps<T extends z.ZodType<any, any, any>> {
   schema: T;
@@ -40,7 +41,7 @@ export function FormTemplate<T extends z.ZodType<any, any, any>>({
       try {
         await onSubmit(values);
       } catch (e) {
-        console.error(e);
+        toast.error("Error al enviar el formulario");
       }
     });
   };

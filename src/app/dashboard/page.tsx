@@ -52,10 +52,28 @@ export default function DashboardPage() {
 
     if (user?.id) {
       inscriptionService.getMyInscriptions(user.id)
-        .then((data: any) => setInscriptions(data.content || []))
+        //setea las inscripciones con la fecha mas reciente primero
+        .then((data: any) => data.content.sort((a: any, b: any) => new Date(b.fechaInscripcion).getTime() - new Date(a.fechaInscripcion).getTime()))
+        .then((data: any) => setInscriptions(data || []))
         .finally(() => setLoadingData(false));
     }
   }, [user, isAuthenticated, router]);
+
+  const estadoGlobal = (() => {
+    if (inscriptions.length === 0) {
+      return "Sin Inscripciones";
+    } else if (inscriptions.length <= 2) {
+      return "Atleta Novato";
+    } else if (inscriptions.length <= 3) {
+      return "Atleta Activo";
+    } else if (inscriptions.length <= 5) {
+      return "Campeón en Formación";
+    } else if (inscriptions.length <= 10) {
+      return "Campeón en Acción";
+    } else {
+      return "Leyenda del Deporte";
+    }
+  })();
 
   const columns: ColumnDef<any>[] = [
     {
@@ -104,22 +122,48 @@ export default function DashboardPage() {
         </div>
       ),
     },
-    // {
-    //   id: "estado",
-    //   header: "Estado",
-    //   cell: (row) => (
-    //     <Badge 
-    //       variant="outline"
-    //       className={
-    //         row.estado === "CONFIRMADA" 
-    //           ? "bg-emerald-50 text-emerald-700 border-emerald-200 font-bold" 
-    //           : "bg-amber-50 text-amber-700 border-amber-200 font-bold"
-    //       }
-    //     >
-    //       {row.estado}
-    //     </Badge>
-    //   ),
-    // },
+    {
+      id: "estado",
+      header: "Estado",
+      cell: (row) => {
+        const torneo = row.competencia.torneo;
+        const ahora = new Date();
+        
+        // Convertimos los strings a objetos Date para comparar correctamente
+        const fechaInicio = new Date(torneo.fechaInicio);
+        const fechaFin = new Date(torneo.fechaFin);
+        
+        // Lógica de estados según tus requerimientos
+        let estadoLabel = "";
+        let colorStyles = "";
+
+        if (torneo.estado === 'FINALIZADO' || ahora > fechaFin) {
+          estadoLabel = "Finalizado";
+          colorStyles = "bg-zinc-100 text-zinc-500 border-zinc-200"; // Gris para lo terminado
+        } else if (torneo.estado === 'PUBLICADO') {
+          if (ahora < fechaInicio) {
+            estadoLabel = "Próximo";
+            colorStyles = "bg-blue-50 text-blue-600 border-blue-200"; // Azul para lo que viene
+          } else {
+            estadoLabel = "En Curso";
+            colorStyles = "bg-emerald-50 text-emerald-600 border-emerald-200"; // Verde para lo activo
+          }
+        } else {
+          // Por si existe un estado 'BORRADOR' u otro
+          estadoLabel = torneo.estado;
+          colorStyles = "bg-amber-50 text-amber-600 border-amber-200";
+        }
+
+        return (
+          <Badge 
+            variant="outline"
+            className={`${colorStyles} font-black uppercase text-[10px] tracking-widest px-3 py-1`}
+          >
+            {estadoLabel}
+          </Badge>
+        );
+      },
+    },
     {
       id: "acciones",
       header: "",
@@ -171,8 +215,8 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           {[
             { label: "Inscripciones Activas", value: inscriptions.length, icon: Trophy },
-            { label: "Estado Global", value: "Atleta", icon: Activity },
-            { label: "Pagos Realizados", value: inscriptions.filter((i: any) => i.estado === "CONFIRMADA").length, icon: CreditCard },
+            { label: "Estado Global", value: estadoGlobal, icon: Activity },
+            //{ label: "Pagos Realizados", value: inscriptions.filter((i: any) => i.estado === "CONFIRMADA").length, icon: CreditCard },
           ].map((stat, i) => (
             <motion.div 
               key={i}

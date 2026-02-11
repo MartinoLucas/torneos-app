@@ -7,28 +7,55 @@ import { inscriptionService } from "@/features/inscriptions/services/inscription
 import { useAuth } from "@/features/auth/context/auth-context";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Calendar, ArrowRight, CreditCard, UserCircle, Activity } from "lucide-react";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { es } from "date-fns/locale";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const router = useRouter();
+
   const [inscriptions, setInscriptions] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
+  const [loadingData, setLoadingData] = React.useState(true);
+  const [accessError, setAccessError] = React.useState<{title: string, description: string} | null>(null);
+  const [retry, setRetry] = React.useState<{retryFunction?: () => void; retryMessage?: string} | null>(null);
 
   React.useEffect(() => {
-    if (user?.id) {
-      setLoading(true);
-      inscriptionService.getMyInscriptions(user.id)
-        .then((data: any) => {
-          setInscriptions(data.content || data || []);
-        })
-        .catch(() => setInscriptions([]))
-        .finally(() => setLoading(false));
+    // Regla 1: Si no hay usuario (después de cargar auth), error o redirect
+    if (!isAuthenticated) {
+        setAccessError({ 
+            title: "Acceso Denegado", 
+            description: "Debes iniciar sesión para ver tu panel." 
+        });
+        setRetry({
+          retryFunction: () => router.push("/login"),
+          retryMessage: "Ir a Iniciar Sesión"
+        });
+        return;
     }
-  }, [user]);
+
+    // Regla 2: Si es Admin, redirigir
+    if (user?.roles.includes("ROLE_ADMIN")) {
+        setAccessError({ 
+            title: "Zona de Atletas", 
+            description: "Los administradores no tienen panel de atleta. Redirigiendo a gestión..." 
+        });
+        setRetry({
+          retryFunction: () => router.push("/admin/accounts"),
+          retryMessage: "Volver a Gestión"
+        });
+        return;
+    }
+
+    if (user?.id) {
+      inscriptionService.getMyInscriptions(user.id)
+        .then((data: any) => setInscriptions(data.content || []))
+        .finally(() => setLoadingData(false));
+    }
+  }, [user, isAuthenticated, router]);
 
   const columns: ColumnDef<any>[] = [
     {
@@ -108,7 +135,14 @@ export default function DashboardPage() {
   ];
 
   return (
-    <PageWrapper className="bg-zinc-100 min-h-screen">
+    <PageWrapper 
+      isLoading={loadingData && !accessError} 
+      loadingMessage="Cargando tu actividad"
+      error={accessError}
+      retryFunction={retry?.retryFunction}
+      retryMessage={retry?.retryMessage}
+      className="bg-zinc-100 min-h-screen"
+      >
       {/* Hero Header - Negro Profundo */}
       <header className="w-full bg-zinc-950 text-white pt-20 pb-16 border-b border-zinc-800 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] rounded-full -mr-20 -mt-20"></div>
@@ -173,7 +207,7 @@ export default function DashboardPage() {
             <DataTable 
                 data={inscriptions} 
                 columns={columns} 
-                loading={loading}
+                loading={loadingData}
                 searchPlaceholder="Filtrar por torneo o categoría..."
                 searchAccessor={(row) => `${row.competencia.torneoNombre} ${row.competencia.nombre}`}
             />

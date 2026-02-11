@@ -25,7 +25,7 @@ export default function LoginPage() {
       toast.success("Bienvenido Administrador");
     } catch (error: any) {
       // Si es 403, es un error de credenciales de admin, pero probamos participante
-      if (error?.code === 403) {
+      if (error?.code === 403 && error?.type === "account_disabled") {
         toast.error(error.title || "Credenciales inválidas");
         return; 
       }

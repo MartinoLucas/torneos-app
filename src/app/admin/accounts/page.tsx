@@ -10,10 +10,13 @@ import { UserPlus, ShieldCheck, Power, PowerOff, Edit3, Mail, Fingerprint } from
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { CreateAdminModal } from "@/features/admin/components/CreateAdminModal";
+import { EditAdminModal } from "@/features/admin/components/EditAdminModal";
 
 export default function AdminAccountsPage() {
   const [accounts, setAccounts] = React.useState([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
+  const [selectedAdmin, setSelectedAdmin] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
 
   const loadAccounts = async () => {
@@ -34,6 +37,11 @@ export default function AdminAccountsPage() {
       toast.success(`Cuenta ${active ? 'desactivada' : 'activada'} correctamente`);
       loadAccounts();
     } catch (e) { toast.error("Error al cambiar estado"); }
+  };
+
+  const handleEditClick = (admin: any) => {
+    setSelectedAdmin(admin);
+    setIsEditModalOpen(true);
   };
 
   const columns: ColumnDef<any>[] = [
@@ -81,7 +89,10 @@ export default function AdminAccountsPage() {
           >
             {!row.deletedAt ? <PowerOff size={16} /> : <Power size={16} />}
           </Button>
-          <Button variant="outline" size="sm" className="rounded-xl border-zinc-200 hover:bg-zinc-950 hover:text-white group">
+          <Button variant="outline" 
+                  size="sm" 
+                  className="rounded-xl border-zinc-200 hover:bg-zinc-950 hover:text-white group" 
+                  onClick={() => handleEditClick(row)}>
             <Edit3 size={16} className="group-hover:scale-110 transition-transform" />
           </Button>
         </div>
@@ -138,6 +149,12 @@ export default function AdminAccountsPage() {
         onOpenChange={setIsCreateModalOpen} 
         onSuccess={loadAccounts} 
         />
+      <EditAdminModal 
+        admin={selectedAdmin}
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        onSuccess={loadAccounts}
+      />
     </PageWrapper>
   );
 }

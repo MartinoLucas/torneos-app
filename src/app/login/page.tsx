@@ -25,6 +25,8 @@ export default function LoginPage() {
       toast.success("Bienvenido Administrador");
     } catch (error: any) {
       // Si llegamos acá es porque admin falló, pero NO hubo toast
+      if(error?.code === 403) return toast.error(error.title || "Credenciales inválidas"); // Si es 403, mostramos el error específico
+      
       try {
         // 2. Intento Participante (Este sí disparará toast si falla)
         const response = await authService.participantLogin(values);

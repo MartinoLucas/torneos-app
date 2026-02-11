@@ -102,7 +102,7 @@ export function InscriptionModal({
                 <span>Precio Regular</span>
               </div>
               <span className={`font-mono ${hasDiscount ? 'text-zinc-400 line-through text-xs' : 'text-zinc-900 font-bold'}`}>
-                ${basePrice.toLocaleString()}
+                ${basePrice.toLocaleString('es-AR')}
               </span>
             </div>
 
@@ -112,14 +112,14 @@ export function InscriptionModal({
                   <div className="bg-emerald-100 text-[9px] px-2 py-0.5 rounded-full uppercase font-black">50% OFF</div>
                   <span className="text-xs uppercase italic tracking-tighter">Multiples competencias aplicado</span>
                 </div>
-                <span className="font-mono">-${(basePrice * 0.5).toLocaleString()}</span>
+                <span className="font-mono">-${(basePrice * 0.5).toLocaleString('es-AR')}</span>
               </div>
             )}
             
             <div className="flex justify-between items-center border-t border-zinc-200 pt-4">
               <span className="text-sm font-black uppercase italic text-zinc-900">Total a abonar</span>
               <span className="text-2xl font-black text-zinc-900 font-mono italic">
-                ${finalPrice.toLocaleString()}
+                ${finalPrice.toLocaleString('es-AR')}
               </span>
             </div>
           </div>

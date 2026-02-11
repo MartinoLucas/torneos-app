@@ -11,7 +11,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger 
 } from "@/components/ui/alert-dialog";
-import { Plus, Edit3, ChevronLeft, CalendarDays, CheckCircle2, XCircle, Trash2, Clock, Layers, ShieldCheck } from "lucide-react";
+import { Plus, Edit3, ChevronLeft, CalendarDays, CheckCircle2, XCircle, Trash2, Clock, Layers, ShieldCheck, Users } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -73,7 +73,7 @@ export default function TournamentDetailPage() {
   const compColumns: ColumnDef<any>[] = [
     { 
       id: "nombre", 
-      header: "Categoría / Competencia", 
+      header: "Competencia", 
       cell: (row) => (
         <div className="flex flex-col">
           <span className="font-black uppercase italic text-zinc-900 tracking-tight">{row.nombre}</span>
@@ -84,7 +84,7 @@ export default function TournamentDetailPage() {
     { 
       id: "precio", 
       header: "Precio", 
-      cell: (row) => <span className="font-mono font-bold text-zinc-900">${row.precioBase.amount.toLocaleString()}</span> 
+      cell: (row) => <span className="font-mono font-bold text-zinc-900">${row.precioBase.amount.toLocaleString('es-AR')}</span> 
     },
     { 
       id: "cupo", 
@@ -114,6 +114,16 @@ export default function TournamentDetailPage() {
         );
       }
     },
+    {
+      id: "actions",
+      header: "Acciones",
+      cell: (row) => (
+        <Link href={`/admin/tournaments/${id}/${row.id}`} className="inline-flex items-center text-sm font-bold text-primary hover:underline">
+          <Users size={16} className="inline-block mr-1" />
+          Ver Inscriptos
+        </Link>
+      )
+    }
   ];
 
   if (loading) return (

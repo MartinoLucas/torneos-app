@@ -77,4 +77,8 @@ export const tournamentService = {
     return apiClient.get('/admin/tournaments');
   },
 
+  getInscriptionsByCompetition: async (tournamentId: string | number, competitionId: string | number): Promise<PaginatedResponse<any>> => {
+    return apiClient.get(`/admin/tournaments/${tournamentId}/competitions/${competitionId}/inscriptions`);
+  }
+
 };

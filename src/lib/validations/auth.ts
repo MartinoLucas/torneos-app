@@ -28,6 +28,16 @@ export const registerSchema = loginSchema.extend({
     .regex(/^\d+$/, "Solo se permiten números"),
 });
 
+/**
+ * Esquema para Registro de Administrador
+ * Basado en POST /admin/accounts
+ * No requiere documento, pero sí email y password
+ */
+export const adminRegisterSchema = loginSchema.extend({
+  email: z.string().min(1, "El email es requerido").email("Formato de email inválido"),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+});
+
 // Tipos inferidos para usar en TypeScript
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;

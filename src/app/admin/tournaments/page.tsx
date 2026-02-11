@@ -5,7 +5,7 @@ import { PageWrapper } from "@/components/shared/PageWrapper";
 import { DataTable, ColumnDef } from "@/components/shared/DataTable";
 import { tournamentService } from "@/features/tournaments/services/tournament-service";
 import { Button } from "@/components/ui/button";
-import { Plus, Settings2, LayoutDashboard, Calendar, Layers } from "lucide-react";
+import { Plus, Settings2, LayoutDashboard, Calendar, Layers, FileQuestion, Anchor, ScanFace } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
@@ -114,11 +114,18 @@ export default function AdminTournamentsPage() {
               </p>
             </div>
             
-            <Button asChild className="bg-primary text-primary-foreground hover:scale-105 transition-transform rounded-2xl font-bold px-8 h-12 shadow-lg shadow-primary/20">
-              <Link href="/admin/tournaments/new">
-                <Plus className="h-5 w-5 mr-2" /> Nuevo Torneo
-              </Link>
-            </Button>
+            <div className="flex flex-row gap-4">
+              <Button asChild className="bg-primary text-primary-foreground hover:scale-105 transition-transform rounded-2xl font-bold px-8 h-12 shadow-lg shadow-primary/20">
+                <Link href="/admin/accounts">
+                  <ScanFace className="h-5 w-5 mr-2" /> Cuentas Admin
+                </Link>
+              </Button>
+              <Button asChild className="bg-primary text-primary-foreground hover:scale-105 transition-transform rounded-2xl font-bold px-8 h-12 shadow-lg shadow-primary/20">
+                <Link href="/admin/tournaments/new">
+                  <Plus className="h-5 w-5 mr-2" /> Nuevo Torneo
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </header>

@@ -126,14 +126,14 @@ export default function TournamentDetailPage() {
     }
   ];
 
-  // if (loading) return (
-  //   <div className="min-h-screen bg-zinc-100 flex items-center justify-center">
-  //     <div className="animate-pulse flex flex-col items-center gap-4">
-  //       <div className="h-12 w-12 bg-zinc-300 rounded-2xl" />
-  //       <p className="text-zinc-400 font-bold uppercase text-xs tracking-widest">Cargando Gestión...</p>
-  //     </div>
-  //   </div>
-  // );
+  if (loading) return (
+    <div className="min-h-screen bg-zinc-100 flex items-center justify-center">
+      <div className="animate-pulse flex flex-col items-center gap-4">
+        <div className="h-12 w-12 bg-zinc-300 rounded-2xl" />
+        <p className="text-zinc-400 font-bold uppercase text-xs tracking-widest">Cargando Gestión...</p>
+      </div>
+    </div>
+  );
 
   return (
     <PageWrapper className="bg-zinc-100 min-h-screen">
